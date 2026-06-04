@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ const SuccessPage = () => {
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [copied, setCopied] = useState(false);
 
   const accessCode = searchParams.get('code') || 'GHOST-00000';
   const product = searchParams.get('product') || 'Service';
@@ -139,11 +140,17 @@ const SuccessPage = () => {
           </p>
         </div>
 
-        {/* Access Code Display */}
-        <div className="w-full bg-[#0a1120]/80 border border-[#00ffc8]/20 rounded-xl p-6 mb-8 text-center">
-          <p className="text-gray-500 text-[10px] font-mono uppercase tracking-widest mb-2">Your access code</p>
-          <p className="text-[#00ffc8] text-xl sm:text-2xl font-bold font-mono tracking-wider select-all break-all">{accessCode}</p>
-          <p className="text-gray-600 text-[10px] font-mono mt-2">Save this code. It cannot be recovered.</p>
+        {/* Access Code Display — PROMINENT */}
+        <div className="w-full bg-[#0a1120] border-2 border-[#f59e0b] rounded-xl p-8 mb-8 text-center shadow-[0_0_30px_rgba(245,158,11,0.15)] relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-transparent via-[#f59e0b] to-transparent animate-pulse" />
+          <p className="text-[#f59e0b] text-xs font-mono uppercase tracking-widest mb-1">⚠ IMPORTANT — SAVE YOUR ACCESS CODE</p>
+          <p className="text-gray-500 text-[10px] font-mono mb-4">This is your only way to access the portal. It cannot be recovered.</p>
+          <div className="bg-[#050b14] border border-[#00ffc8]/30 rounded-lg p-5 mb-4">
+            <p className="text-[#00ffc8] text-3xl sm:text-4xl font-bold font-mono tracking-widest select-all break-all">{accessCode}</p>
+          </div>
+          <button onClick={() => { navigator.clipboard.writeText(accessCode); setCopied(true); setTimeout(() => setCopied(false), 2000); }} className="h-10 px-6 bg-[#f59e0b]/20 border border-[#f59e0b]/40 text-[#f59e0b] text-xs font-bold font-mono rounded-lg hover:bg-[#f59e0b]/30 hover:shadow-[0_0_15px_rgba(245,158,11,0.2)] active:scale-95 transition-all">
+            {copied ? '✓ COPIED' : 'COPY ACCESS CODE'}
+          </button>
         </div>
 
         <div className="w-full border-2 border-[#00ffc8] rounded-lg p-6 bg-black/40 shadow-[0_0_15px_rgba(0,255,200,0.1)] backdrop-blur-sm mb-12">
