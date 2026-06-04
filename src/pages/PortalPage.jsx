@@ -3,10 +3,11 @@ import { Helmet } from 'react-helmet';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Lock, ArrowRight, Smartphone, Tv, Gamepad2, Laptop, Shield, Phone, LogOut, RefreshCw, AlertTriangle, Download, Zap, MessageCircle, Globe, Tablet, Clock, Mail, PhoneCall } from 'lucide-react';
+import { Lock, ArrowRight, Smartphone, Tv, Gamepad2, Laptop, Shield, Phone, LogOut, RefreshCw, AlertTriangle, Download, Zap, MessageCircle, Globe, Tablet, Clock, Mail, PhoneCall, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import MessagingPanel from '@/components/MessagingPanel';
 import CallPanel from '@/components/CallPanel';
+import BurnerRoomsPanel from '@/components/BurnerRoomsPanel';
 
 const API_BASE = 'https://api.phantompathvpn.com/api';
 const FLAGS = { AU: '🇦🇺', GB: '🇬🇧', US: '🇺🇸', DE: '🇩🇪', CA: '🇨🇦', JP: '🇯🇵', NL: '🇳🇱', SG: '🇸🇬', FR: '🇫🇷', AE: '🇦🇪', IN: '🇮🇳', IE: '🇮🇪' };
@@ -34,7 +35,7 @@ const PortalPage = () => {
   // PWA Back button navigation
   useEffect(() => {
     const handlePopState = (e) => {
-      if (activeTab === 'messages' || activeTab === 'calls') {
+      if (activeTab === 'messages' || activeTab === 'calls' || activeTab === 'rooms') {
         e.preventDefault();
         setActiveTab('dashboard');
       } else if (view === 'dashboard') {
@@ -154,6 +155,10 @@ const PortalPage = () => {
     <div className="h-screen bg-[#050b14] flex flex-col pt-16"><Helmet><title>PhantomPath | Calls</title></Helmet><div className="flex-1 flex flex-col min-h-0"><CallPanel sessionToken={sessionToken} codeHash={codeHash} virtualNumber={vnumService.numberDetails.phoneNumber} virtualNumberId={vnumService.id} onClose={() => setActiveTab('dashboard')} /></div></div>
   );
 
+  if (activeTab === 'rooms') return (
+    <div className="h-screen bg-[#050b14] flex flex-col pt-16"><Helmet><title>PhantomPath | Burner Rooms</title></Helmet><div className="flex-1 flex flex-col min-h-0"><BurnerRoomsPanel sessionToken={sessionToken} codeHash={codeHash} onClose={() => setActiveTab('dashboard')} /></div></div>
+  );
+
   return (
     <div className="min-h-screen bg-[#050b14] pt-16 px-4 flex flex-col relative overflow-hidden">
       <Helmet><title>PhantomPath Portal | Dashboard</title></Helmet>
@@ -204,6 +209,8 @@ const PortalPage = () => {
                     <div className="grid grid-cols-2 gap-2">
                       <button onClick={() => navigateToTab('messages')} className="h-10 bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 active:scale-95 text-[11px] rounded-xl flex items-center justify-center gap-1.5 transition-all" style={mono}><MessageCircle className="w-3.5 h-3.5" />Messages</button>
                       <button onClick={() => navigateToTab('calls')} className="h-10 bg-[#3affc2]/10 border border-[#3affc2]/20 text-[#3affc2] hover:bg-[#3affc2]/20 active:scale-95 text-[11px] rounded-xl flex items-center justify-center gap-1.5 transition-all" style={mono}><Phone className="w-3.5 h-3.5" />Calls</button>
+                    </div>
+                    <button onClick={() => navigateToTab('rooms')} className="w-full h-10 bg-[#6B5CE7]/10 border border-[#6B5CE7]/20 text-[#6B5CE7] hover:bg-[#6B5CE7]/20 active:scale-95 text-[11px] rounded-xl flex items-center justify-center gap-1.5 transition-all mt-2" style={mono}><Users className="w-3.5 h-3.5" />Burner Rooms</button>
                     </div>
                   </div>
                 ) : (<div className="bg-[#050b14] border border-dashed border-white/10 rounded-xl p-5 text-center"><p className="text-gray-600 text-xs" style={mono}>Provisioning...</p></div>)}
