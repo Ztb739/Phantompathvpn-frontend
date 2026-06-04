@@ -181,7 +181,7 @@ const PortalPage = () => {
   const vnumService = services.find((s) => s.type === 'VIRTUAL_NUMBER');
 
   if (activeTab === 'messages' && vnumService && vnumService.numberDetails) return (
-    <div className="h-screen bg-[#050b14] flex flex-col pt-16"><Helmet><title>PhantomPath | Messages</title></Helmet><div className="flex-1 flex flex-col min-h-0"><MessagingPanel sessionToken={sessionToken} codeHash={codeHash} virtualNumber={vnumService.numberDetails.phoneNumber} virtualNumberId={vnumService.id} onClose={() => setActiveTab('dashboard')} /></div></div>
+    <div className="h-screen bg-[#050b14] flex flex-col pt-16"><Helmet><title>PhantomPath | Messages</title></Helmet><div className="flex-1 flex flex-col min-h-0"><MessagingPanel sessionToken={sessionToken} codeHash={codeHash} virtualNumber={vnumService.numberDetails.phoneNumber} virtualNumberId={vnumService.id} accessCodeId={codeHash} onClose={() => setActiveTab('dashboard')} /></div></div>
   );
 
   if (activeTab === 'calls' && vnumService && vnumService.numberDetails) return (

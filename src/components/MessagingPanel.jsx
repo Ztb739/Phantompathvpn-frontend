@@ -1,14 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, Plus, MessageCircle, Phone, Clock, Loader2, Check, CheckCheck, AlertCircle, ArrowLeft, Search, Paperclip, Mic, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import useSocket from '@/hooks/use-socket';
 
 const API_BASE = 'https://api.phantompathvpn.com/api';
 
-const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId, onClose }) => {
+const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId, onClose, accessCodeId }) => {
   const { toast } = useToast();
   const [activeContact, setActiveContact] = useState(null);
   const [conversations, setConversations] = useState([]);
@@ -23,9 +24,13 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
   const [walletBalance, setWalletBalance] = useState(5.00);
   const [showTopUp, setShowTopUp] = useState(false);
   const [keyboardOffset, setKeyboardOffset] = useState(0);
+  const [typingContacts, setTypingContacts] = useState({});
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const pollRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
+
+  const { connected, on, emit } = useSocket(accessCodeId);
 
   const hdrs = () => ({ 'Content-Type': 'application/json', 'x-session-token': sessionToken, 'x-code-hash': codeHash });
 
@@ -91,6 +96,45 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
 
   useEffect(() => { if (messagesEndRef.current) messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, [messages]);
   useEffect(() => { if (activeContact && inputRef.current) inputRef.current.focus({ preventScroll: true }); }, [activeContact]);
+
+  // WebSocket: real-time message, delivery status, typing
+  useEffect(() => {
+    if (!connected || isDemo) return;
+
+    const unsub1 = on('new_message', (msg) => {
+      if (activeContact && msg.from === activeContact) {
+        setMessages((prev) => [...prev, { id: msg.id, direction: 'INBOUND', body: msg.body || '', status: 'RECEIVED', createdAt: msg.createdAt }]);
+      }
+      fetchConversations();
+    });
+
+    const unsub2 = on('delivery_status', (data) => {
+      setMessages((prev) => prev.map((m) => m.id === data.messageId ? { ...m, status: data.status } : m));
+    });
+
+    const unsub3 = on('typing', (data) => {
+      if (data.contactNumber) {
+        setTypingContacts((prev) => ({ ...prev, [data.contactNumber]: data.isTyping }));
+        if (data.isTyping) setTimeout(() => setTypingContacts((prev) => ({ ...prev, [data.contactNumber]: false })), 5000);
+      }
+    });
+
+    const unsub4 = on('balance_update', (data) => {
+      if (data.balance !== undefined) setWalletBalance(Number(data.balance));
+    });
+
+    return () => { unsub1(); unsub2(); unsub3(); unsub4(); };
+  }, [connected, activeContact, isDemo]);
+
+  // Send typing indicator
+  const handleTyping = useCallback(() => {
+    if (!connected || isDemo || !activeContact) return;
+    emit('typing', { contactNumber: activeContact, isTyping: true });
+    clearTimeout(typingTimeoutRef.current);
+    typingTimeoutRef.current = setTimeout(() => {
+      emit('typing', { contactNumber: activeContact, isTyping: false });
+    }, 3000);
+  }, [connected, isDemo, activeContact, emit]);
 
   // Keyboard-safe chat - Visual Viewport API
   useEffect(() => {
@@ -181,6 +225,7 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
         </div>
         <div className="flex items-center gap-2">
           <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${messagesRemaining > 10 ? 'bg-[#00a884]/10 text-[#00a884]' : messagesRemaining > 0 ? 'bg-[#f59e0b]/10 text-[#f59e0b]' : 'bg-[#ef4444]/10 text-[#ef4444]'}`}>{messagesRemaining} msgs left</span>
+          {connected && <span className="w-2 h-2 rounded-full bg-[#00a884] animate-pulse" title="Live" />}
           <button onClick={() => setShowNewChat(!showNewChat)} className="w-9 h-9 rounded-full hover:bg-[#2a3942] flex items-center justify-center transition-colors" title="New chat">
             <Plus className="w-5 h-5 text-[#aebac1]" />
           </button>
@@ -312,6 +357,17 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
                     </React.Fragment>
                   );
                 })}
+                {activeContact && typingContacts[activeContact] && (
+                  <div className="flex justify-start mb-1">
+                    <div className="bg-[#202c33] rounded-lg rounded-tl-none px-4 py-2.5 shadow-sm">
+                      <div className="flex gap-1 items-center">
+                        <span className="w-2 h-2 bg-[#8696a0] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                        <span className="w-2 h-2 bg-[#8696a0] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                        <span className="w-2 h-2 bg-[#8696a0] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <div ref={messagesEndRef} />
               </div>
             )}
@@ -342,7 +398,7 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
               <input
                 ref={inputRef}
                 value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
+                onChange={(e) => { setNewMessage(e.target.value); handleTyping(); }}
                 onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); } }}
                 placeholder="Type a message"
                 className="w-full h-10 bg-[#2a3942] text-[#e9edef] text-sm placeholder:text-[#8696a0] rounded-lg px-4 border-none outline-none focus:ring-0"
