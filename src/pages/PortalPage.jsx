@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Lock, ArrowRight, Smartphone, Tv, Gamepad2, Laptop, Shield, Phone, LogOut, RefreshCw, AlertTriangle, Download, Zap, MessageCircle, Globe, Tablet, Clock, Mail, PhoneCall, Users } from 'lucide-react';
+import { Lock, ArrowRight, Smartphone, Tv, Gamepad2, Laptop, Shield, Phone, LogOut, RefreshCw, AlertTriangle, Download, Zap, MessageCircle, Globe, Tablet, Clock, Mail, PhoneCall, Users, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import MessagingPanel from '@/components/MessagingPanel';
 import CallPanel from '@/components/CallPanel';
@@ -27,6 +27,8 @@ const PortalPage = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showEsimGuide, setShowEsimGuide] = useState(false);
   const [showVpnGuide, setShowVpnGuide] = useState(false);
+  const [servicesLoading, setServicesLoading] = useState(false);
+  const [servicesError, setServicesError] = useState('');
   const { toast } = useToast();
   const inputRef = useRef(null);
 
@@ -103,14 +105,32 @@ const PortalPage = () => {
     try { const res = await fetch(`${API_BASE}/portal/confirm-switch`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: switchCode }) }); const data = await res.json(); if (data.token) { setSessionToken(data.token); setCodeHash(data.codeHash); setExpiresAt(data.accessCodeExpiresAt); setView('dashboard'); loadServices(data.token, data.codeHash); loadVpnNodes(data.token, data.codeHash); toast({ title: 'Device Switched' }); } } catch (err) { setView('login'); }
   };
 
-  const loadServices = async (t, h) => { try { const res = await fetch(`${API_BASE}/portal/services`, { headers: hdrs(t, h) }); const data = await res.json(); if (data.services) setServices(data.services); if (data.wallet) setWallet(data.wallet); } catch (err) {} };
-  const loadVpnNodes = async (t, h) => { try { const res = await fetch(`${API_BASE}/portal/vpn-nodes`, { headers: hdrs(t, h) }); const data = await res.json(); if (data.nodes) setVpnNodes(data.nodes); } catch (err) {} };
+  const loadServices = async (t, h) => {
+    setServicesLoading(true); setServicesError('');
+    try {
+      const res = await fetch(`${API_BASE}/portal/services`, { headers: hdrs(t, h) });
+      if (res.status === 401) { handleLogout(); toast({ title: 'Session Expired', description: 'Please log in again.', variant: 'destructive' }); return; }
+      const data = await res.json();
+      if (data.services) setServices(data.services);
+      if (data.wallet) setWallet(data.wallet);
+    } catch (err) { setServicesError('Unable to load services. Check your connection.'); }
+    setServicesLoading(false);
+  };
+  const loadVpnNodes = async (t, h) => { try { const res = await fetch(`${API_BASE}/portal/vpn-nodes`, { headers: hdrs(t, h) }); if (res.ok) { const data = await res.json(); if (data.nodes) setVpnNodes(data.nodes); } } catch (err) {} };
   const switchVpnNode = async (sid, nid, country) => { toast({ title: 'Switching...', description: `Connecting to ${country}...` }); try { const res = await fetch(`${API_BASE}/portal/vpn-switch`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...hdrs() }, body: JSON.stringify({ serviceId: sid, targetNodeId: nid }) }); const data = await res.json(); if (data.success) { toast({ title: 'Server Switched' }); loadServices(sessionToken, codeHash); } } catch (err) {} };
   const downloadVpnConfig = async (sid) => { try { const res = await fetch(`${API_BASE}/portal/vpn-config/${sid}`, { headers: hdrs() }); if (!res.ok) throw new Error(); const blob = await res.blob(); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'phantompath.conf'; a.click(); URL.revokeObjectURL(a.href); toast({ title: 'Config Downloaded' }); } catch (err) { toast({ title: 'Not Available', variant: 'destructive' }); } };
   const handleLogout = () => { sessionStorage.removeItem('pp_token'); sessionStorage.removeItem('pp_hash'); sessionStorage.removeItem('pp_expires'); setSessionToken(''); setCodeHash(''); setServices([]); setWallet({ balance: 0, currency: 'GBP' }); setVpnNodes([]); setAccessCode(''); setError(''); setActiveTab('dashboard'); setView('login'); };
 
   const schemaPortal = { '@context': 'https://schema.org', '@type': 'WebPage', 'name': 'PhantomPath Portal', 'url': 'https://phantompathvpn.com/portal' };
   const daysLeft = expiresAt ? Math.max(0, Math.ceil((new Date(expiresAt) - new Date()) / 86400000)) : 0;
+  const isSessionExpired = expiresAt && new Date(expiresAt) < new Date();
+  const isServiceExpired = (s) => s?.expiresAt && new Date(s.expiresAt) < new Date();
+  const getStatusBadge = (s) => {
+    if (isServiceExpired(s)) return { text: 'EXPIRED', cls: 'text-red-400 bg-red-400/10 border-red-400/20' };
+    if (s?.status === 'ACTIVE') return { text: 'ACTIVE', cls: 'text-[#3affc2] bg-[#3affc2]/10 border-[#3affc2]/20' };
+    if (s?.status === 'PENDING') return { text: 'PENDING', cls: 'text-[#f59e0b] bg-[#f59e0b]/10 border-[#f59e0b]/20' };
+    return { text: s?.status || 'UNKNOWN', cls: 'text-gray-500 bg-gray-500/10 border-gray-500/20' };
+  };
   const msgCost = 0.05;
   const minCost = 0.10;
   const messagesRemaining = Math.floor(wallet.balance / msgCost);
@@ -180,7 +200,7 @@ const PortalPage = () => {
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-3">
             <div className="w-2.5 h-2.5 rounded-full bg-[#3affc2] shadow-[0_0_10px_rgba(58,255,194,0.6)] animate-pulse" />
-            <div><h1 className="text-[#3affc2] font-bold text-lg tracking-tight leading-none" style={mono}>PHANTOMPATH</h1><p className="text-gray-600 text-[11px] mt-0.5" style={mono}>Secure · {daysLeft} days remaining · 1 device</p></div>
+            <div><h1 className="text-[#3affc2] font-bold text-lg tracking-tight leading-none" style={mono}>PHANTOMPATH</h1><p className={`text-[11px] mt-0.5 ${isSessionExpired ? "text-red-400" : daysLeft <= 3 ? "text-[#f59e0b]" : "text-gray-600"}`} style={mono}>{isSessionExpired ? "Session expired" : `Secure · ${daysLeft} days remaining · 1 device`}</p></div>
           </div>
           <button onClick={handleLogout} className="h-8 px-3 rounded-lg border border-white/10 text-gray-500 hover:text-white hover:border-red-500/30 text-xs flex items-center gap-1.5 transition-all" style={mono}><LogOut className="w-3.5 h-3.5" />Exit</button>
         </motion.div>
@@ -190,7 +210,7 @@ const PortalPage = () => {
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="bg-[#0a1120] border border-white/5 rounded-2xl p-5">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-xl bg-[#3affc2]/10 border border-[#3affc2]/20 flex items-center justify-center"><Clock className="w-4.5 h-4.5 text-[#3affc2]" /></div><div><h3 className="text-white font-semibold text-sm">Session Status</h3><p className="text-gray-600 text-[10px]">Active Pass</p></div></div>
-                <span className="text-[10px] font-bold text-[#3affc2] bg-[#3affc2]/10 border border-[#3affc2]/20 px-2.5 py-1 rounded-lg" style={mono}>ACTIVE</span>
+                <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border ${isSessionExpired ? 'text-red-400 bg-red-400/10 border-red-400/20' : 'text-[#3affc2] bg-[#3affc2]/10 border-[#3affc2]/20'}`} style={mono}>{isSessionExpired ? 'EXPIRED' : 'ACTIVE'}</span>
               </div>
               <div className="bg-[#050b14] rounded-xl p-4 grid grid-cols-3 gap-3 mb-4">
                 <div className="text-center"><p className="text-gray-600 text-[8px] uppercase tracking-widest mb-1.5" style={mono}>Expires In</p><p className="text-[#3affc2] text-2xl font-bold" style={mono}>{daysLeft}</p><p className="text-gray-600 text-[9px]" style={mono}>days</p></div>
@@ -208,7 +228,7 @@ const PortalPage = () => {
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-[#0a1120] border border-white/5 rounded-2xl p-5">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center"><Phone className="w-4.5 h-4.5 text-amber-400" /></div><div><h3 className="text-white font-semibold text-sm">Virtual Number</h3><p className="text-gray-600 text-[10px]">Private communication line</p></div></div>
-                  <span className="text-[10px] font-bold text-[#3affc2] bg-[#3affc2]/10 border border-[#3affc2]/20 px-2.5 py-1 rounded-lg" style={mono}>{vnumService.status}</span>
+                  <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border ${getStatusBadge(vnumService).cls}`} style={mono}>{getStatusBadge(vnumService).text}</span>
                 </div>
                 {vnumService.numberDetails ? (
                   <div className="space-y-3">
@@ -237,7 +257,7 @@ const PortalPage = () => {
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="bg-[#0a1120] border border-white/5 rounded-2xl p-5">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-xl bg-[#3affc2]/10 border border-[#3affc2]/20 flex items-center justify-center"><Shield className="w-4.5 h-4.5 text-[#3affc2]" /></div><div><h3 className="text-white font-semibold text-sm">VPN Service</h3><p className="text-gray-600 text-[10px]">WireGuard Encrypted Tunnel</p></div></div>
-                  <span className="text-[10px] font-bold text-[#3affc2] bg-[#3affc2]/10 border border-[#3affc2]/20 px-2.5 py-1 rounded-lg" style={mono}>{vpnService.status}</span>
+                  <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border ${getStatusBadge(vpnService).cls}`} style={mono}>{getStatusBadge(vpnService).text}</span>
                 </div>
                 {vpnService.status === 'ACTIVE' ? (
                   <div className="space-y-3">
@@ -253,7 +273,7 @@ const PortalPage = () => {
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-[#0a1120] border border-white/5 rounded-2xl p-5">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center"><Smartphone className="w-4.5 h-4.5 text-blue-400" /></div><div><h3 className="text-white font-semibold text-sm">eSIM Data</h3><p className="text-gray-600 text-[10px]">Mobile data via eSIM</p></div></div>
-                  <span className="text-[10px] font-bold text-[#3affc2] bg-[#3affc2]/10 border border-[#3affc2]/20 px-2.5 py-1 rounded-lg" style={mono}>{esimService.status}</span>
+                  <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border ${getStatusBadge(esimService).cls}`} style={mono}>{getStatusBadge(esimService).text}</span>
                 </div>
                 {esimService.esimDetails ? (
                   <div className="space-y-3">
@@ -269,10 +289,29 @@ const PortalPage = () => {
             )}
           </div>
         </div>
-        {services.length === 0 && (
+        {/* Loading State */}
+        {servicesLoading && services.length === 0 && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-[#0a1120] border border-white/5 rounded-2xl p-8 text-center mt-4">
+            <Loader2 className="w-6 h-6 text-[#3affc2] animate-spin mx-auto mb-3" />
+            <p className="text-gray-600 text-sm" style={mono}>Loading services...</p>
+          </motion.div>
+        )}
+
+        {/* Error State */}
+        {servicesError && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-[#0a1120] border border-red-500/20 rounded-2xl p-6 text-center mt-4">
+            <AlertTriangle className="w-6 h-6 text-red-400 mx-auto mb-3" />
+            <p className="text-red-400 text-sm mb-1" style={mono}>Connection Error</p>
+            <p className="text-gray-600 text-xs mb-3">{servicesError}</p>
+            <Button onClick={() => loadServices(sessionToken, codeHash)} variant="outline" size="sm" className="border-red-500/20 text-red-400 h-8 text-xs hover:bg-red-500/10 active:scale-95"><RefreshCw className="w-3 h-3 mr-1" />Retry</Button>
+          </motion.div>
+        )}
+
+        {/* Empty State (no error, not loading, but no services) */}
+        {!servicesLoading && !servicesError && services.length === 0 && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-[#0a1120] border border-white/5 rounded-2xl p-8 text-center mt-4">
             <p className="text-gray-600 text-sm mb-2" style={mono}>Provisioning services...</p>
-            <Button onClick={() => loadServices(sessionToken, codeHash)} variant="outline" size="sm" className="border-white/10 text-gray-500 h-7 text-xs"><RefreshCw className="w-3 h-3 mr-1" />Refresh</Button>
+            <Button onClick={() => loadServices(sessionToken, codeHash)} variant="outline" size="sm" className="border-white/10 text-gray-500 h-7 text-xs active:scale-95"><RefreshCw className="w-3 h-3 mr-1" />Refresh</Button>
           </motion.div>
         )}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }} className="text-center mt-6">
