@@ -8,24 +8,37 @@ import { useToast } from '@/hooks/use-toast';
 import MessagingPanel from '@/components/MessagingPanel';
 import CallPanel from '@/components/CallPanel';
 import BurnerRoomsPanel from '@/components/BurnerRoomsPanel';
+import { EsimSetupGuide, VpnSetupGuide } from '@/components/SetupGuide';
 
 const API_BASE = 'https://api.phantompathvpn.com/api';
 const FLAGS = { AU: '🇦🇺', GB: '🇬🇧', US: '🇺🇸', DE: '🇩🇪', CA: '🇨🇦', JP: '🇯🇵', NL: '🇳🇱', SG: '🇸🇬', FR: '🇫🇷', AE: '🇦🇪', IN: '🇮🇳', IE: '🇮🇪' };
 
 const PortalPage = () => {
   const [accessCode, setAccessCode] = useState('');
-  const [view, setView] = useState('login');
-  const [sessionToken, setSessionToken] = useState('');
-  const [codeHash, setCodeHash] = useState('');
+  const [view, setView] = useState(() => sessionStorage.getItem('pp_token') ? 'dashboard' : 'login');
+  const [sessionToken, setSessionToken] = useState(() => sessionStorage.getItem('pp_token') || '');
+  const [codeHash, setCodeHash] = useState(() => sessionStorage.getItem('pp_hash') || '');
   const [services, setServices] = useState([]);
   const [wallet, setWallet] = useState({ balance: 0, currency: 'GBP' });
   const [vpnNodes, setVpnNodes] = useState([]);
-  const [expiresAt, setExpiresAt] = useState('');
+  const [expiresAt, setExpiresAt] = useState(() => sessionStorage.getItem('pp_expires') || '');
   const [switchCode, setSwitchCode] = useState('');
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [showEsimGuide, setShowEsimGuide] = useState(false);
+  const [showVpnGuide, setShowVpnGuide] = useState(false);
   const { toast } = useToast();
   const inputRef = useRef(null);
+
+  // Persist session across page refresh
+  useEffect(() => {
+    if (sessionToken) { sessionStorage.setItem('pp_token', sessionToken); sessionStorage.setItem('pp_hash', codeHash); sessionStorage.setItem('pp_expires', expiresAt); }
+  }, [sessionToken, codeHash, expiresAt]);
+
+  // Restore session on mount
+  useEffect(() => {
+    if (sessionToken && view === 'dashboard') { loadServices(sessionToken, codeHash); loadVpnNodes(sessionToken, codeHash); }
+  }, []);
 
   useEffect(() => { if (view === 'login' && inputRef.current) { inputRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' }); inputRef.current.focus({ preventScroll: true }); } }, [view]);
 
@@ -94,7 +107,7 @@ const PortalPage = () => {
   const loadVpnNodes = async (t, h) => { try { const res = await fetch(`${API_BASE}/portal/vpn-nodes`, { headers: hdrs(t, h) }); const data = await res.json(); if (data.nodes) setVpnNodes(data.nodes); } catch (err) {} };
   const switchVpnNode = async (sid, nid, country) => { toast({ title: 'Switching...', description: `Connecting to ${country}...` }); try { const res = await fetch(`${API_BASE}/portal/vpn-switch`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...hdrs() }, body: JSON.stringify({ serviceId: sid, targetNodeId: nid }) }); const data = await res.json(); if (data.success) { toast({ title: 'Server Switched' }); loadServices(sessionToken, codeHash); } } catch (err) {} };
   const downloadVpnConfig = async (sid) => { try { const res = await fetch(`${API_BASE}/portal/vpn-config/${sid}`, { headers: hdrs() }); if (!res.ok) throw new Error(); const blob = await res.blob(); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'phantompath.conf'; a.click(); URL.revokeObjectURL(a.href); toast({ title: 'Config Downloaded' }); } catch (err) { toast({ title: 'Not Available', variant: 'destructive' }); } };
-  const handleLogout = () => { setSessionToken(''); setCodeHash(''); setServices([]); setWallet({ balance: 0, currency: 'GBP' }); setVpnNodes([]); setAccessCode(''); setError(''); setActiveTab('dashboard'); setView('login'); };
+  const handleLogout = () => { sessionStorage.removeItem('pp_token'); sessionStorage.removeItem('pp_hash'); sessionStorage.removeItem('pp_expires'); setSessionToken(''); setCodeHash(''); setServices([]); setWallet({ balance: 0, currency: 'GBP' }); setVpnNodes([]); setAccessCode(''); setError(''); setActiveTab('dashboard'); setView('login'); };
 
   const schemaPortal = { '@context': 'https://schema.org', '@type': 'WebPage', 'name': 'PhantomPath Portal', 'url': 'https://phantompathvpn.com/portal' };
   const daysLeft = expiresAt ? Math.max(0, Math.ceil((new Date(expiresAt) - new Date()) / 86400000)) : 0;
@@ -206,6 +219,7 @@ const PortalPage = () => {
                         <div className="bg-[#0a1120] rounded-lg px-3 py-2 text-center border border-white/5"><p className="text-gray-600 text-[8px] uppercase" style={mono}>Voice</p><p className={`text-xs font-bold ${vnumService.numberDetails.voiceEnabled ? 'text-[#3affc2]' : 'text-gray-600'}`} style={mono}>{vnumService.numberDetails.voiceEnabled ? 'ON' : 'OFF'}</p></div>
                       </div>
                     </div>
+                    <p className="text-gray-600 text-[10px] text-center" style={mono}>Your number is ready. No setup required.</p>
                     <div className="grid grid-cols-2 gap-2">
                       <button onClick={() => navigateToTab('messages')} className="h-10 bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 active:scale-95 text-[11px] rounded-xl flex items-center justify-center gap-1.5 transition-all" style={mono}><MessageCircle className="w-3.5 h-3.5" />Messages</button>
                       <button onClick={() => navigateToTab('calls')} className="h-10 bg-[#3affc2]/10 border border-[#3affc2]/20 text-[#3affc2] hover:bg-[#3affc2]/20 active:scale-95 text-[11px] rounded-xl flex items-center justify-center gap-1.5 transition-all" style={mono}><Phone className="w-3.5 h-3.5" />Calls</button>
@@ -228,6 +242,7 @@ const PortalPage = () => {
                 {vpnService.status === 'ACTIVE' ? (
                   <div className="space-y-3">
                     <button onClick={() => downloadVpnConfig(vpnService.id)} className="w-full h-10 bg-[#3affc2]/10 border border-[#3affc2]/15 text-[#3affc2] hover:bg-[#3affc2]/20 text-xs rounded-xl flex items-center justify-center gap-2 transition-all" style={mono}><Download className="w-4 h-4" />Download Config (.conf)</button>
+                    <button onClick={() => setShowVpnGuide(true)} className="w-full h-9 bg-[#050b14] border border-white/10 text-gray-400 hover:text-[#3affc2] hover:border-[#3affc2]/20 text-[10px] rounded-xl flex items-center justify-center gap-1.5 transition-all active:scale-95" style={mono}><Shield className="w-3 h-3" />Setup Guide</button>
                     {vpnNodes.length > 0 && (<div><p className="text-gray-600 text-[10px] mb-2 uppercase tracking-widest" style={mono}>Switch Server</p><div className="grid grid-cols-2 gap-2">{vpnNodes.map((n) => (<button key={n.id} onClick={() => switchVpnNode(vpnService.id, n.id, n.country)} className="bg-[#050b14] border border-white/5 rounded-xl py-2.5 px-3 hover:border-[#3affc2]/30 hover:bg-[#3affc2]/5 transition-all flex items-center gap-2.5"><span className="text-xl">{FLAGS[n.countryCode] || '🌍'}</span><div className="text-left"><span className="text-white text-xs font-medium block">{n.country}</span><span className="text-gray-600 text-[10px]">{n.city}</span></div></button>))}</div></div>)}
                   </div>
                 ) : (<div className="bg-[#050b14] border border-dashed border-white/10 rounded-xl p-5 text-center"><p className="text-gray-600 text-xs" style={mono}>Provisioning...</p></div>)}
@@ -247,6 +262,7 @@ const PortalPage = () => {
                     ) : (
                       <div className="bg-[#050b14] border border-dashed border-white/10 rounded-xl p-5 text-center"><p className="text-gray-500 text-sm mb-1" style={mono}>QR pending activation</p><p className="text-[10px] text-gray-600" style={mono}>ICCID: <span className="text-blue-400">{esimService.esimDetails.iccid || '...'}</span></p></div>
                     )}
+                    <button onClick={() => setShowEsimGuide(true)} className="w-full h-9 bg-[#050b14] border border-white/10 text-gray-400 hover:text-blue-400 hover:border-blue-400/20 text-[10px] rounded-xl flex items-center justify-center gap-1.5 transition-all active:scale-95" style={mono}><Smartphone className="w-3 h-3" />Setup Guide</button>
                   </div>
                 ) : (<div className="bg-[#050b14] border border-dashed border-white/10 rounded-xl p-5 text-center"><p className="text-gray-600 text-xs" style={mono}>Provisioning...</p></div>)}
               </motion.div>
@@ -263,6 +279,8 @@ const PortalPage = () => {
           <p className="text-gray-800 text-[9px] tracking-widest" style={mono}>ENCRYPTED · WIREGUARD · EPHEMERAL</p>
         </motion.div>
       </div>
+      <EsimSetupGuide isOpen={showEsimGuide} onClose={() => setShowEsimGuide(false)} />
+      <VpnSetupGuide isOpen={showVpnGuide} onClose={() => setShowVpnGuide(false)} />
     </div>
   );
 };
