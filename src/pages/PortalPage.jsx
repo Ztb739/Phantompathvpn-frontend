@@ -245,7 +245,6 @@ const PortalPage = () => {
                       <button onClick={() => navigateToTab('calls')} className="h-10 bg-[#3affc2]/10 border border-[#3affc2]/20 text-[#3affc2] hover:bg-[#3affc2]/20 active:scale-95 text-[11px] rounded-xl flex items-center justify-center gap-1.5 transition-all" style={mono}><Phone className="w-3.5 h-3.5" />Calls</button>
                     </div>
                     <button onClick={() => navigateToTab('rooms')} className="w-full h-10 bg-[#6B5CE7]/10 border border-[#6B5CE7]/20 text-[#6B5CE7] hover:bg-[#6B5CE7]/20 active:scale-95 text-[11px] rounded-xl flex items-center justify-center gap-1.5 transition-all mt-2" style={mono}><Users className="w-3.5 h-3.5" />Burner Rooms</button>
-                    </div>
                   </div>
                 ) : (<div className="bg-[#050b14] border border-dashed border-white/10 rounded-xl p-5 text-center"><p className="text-gray-600 text-xs" style={mono}>Provisioning...</p></div>)}
               </motion.div>
