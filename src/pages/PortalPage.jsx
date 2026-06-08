@@ -9,6 +9,7 @@ import MessagingPanel from '@/components/MessagingPanel';
 import CallPanel from '@/components/CallPanel';
 import BurnerRoomsPanel from '@/components/BurnerRoomsPanel';
 import { EsimSetupGuide, VpnSetupGuide } from '@/components/SetupGuide';
+import ContactsPanel from '@/components/ContactsPanel';
 
 const API_BASE = 'https://api.phantompathvpn.com/api';
 const FLAGS = { AU: '🇦🇺', GB: '🇬🇧', US: '🇺🇸', DE: '🇩🇪', CA: '🇨🇦', JP: '🇯🇵', NL: '🇳🇱', SG: '🇸🇬', FR: '🇫🇷', AE: '🇦🇪', IN: '🇮🇳', IE: '🇮🇪' };
@@ -50,7 +51,7 @@ const PortalPage = () => {
   // PWA Back button navigation
   useEffect(() => {
     const handlePopState = (e) => {
-      if (activeTab === 'messages' || activeTab === 'calls' || activeTab === 'rooms') {
+      if (activeTab === 'messages' || activeTab === 'calls' || activeTab === 'rooms' || activeTab === 'contacts') {
         e.preventDefault();
         setActiveTab('dashboard');
       } else if (view === 'dashboard') {
@@ -192,6 +193,10 @@ const PortalPage = () => {
     <div className="h-screen bg-[#050b14] flex flex-col pt-16"><Helmet><title>PhantomPath | Burner Rooms</title></Helmet><div className="flex-1 flex flex-col min-h-0"><BurnerRoomsPanel sessionToken={sessionToken} codeHash={codeHash} onClose={() => setActiveTab('dashboard')} /></div></div>
   );
 
+  if (activeTab === 'contacts') return (
+    <div className="h-screen bg-[#050b14] flex flex-col pt-16"><Helmet><title>PhantomPath | Contacts</title></Helmet><div className="flex-1 flex flex-col min-h-0"><ContactsPanel sessionToken={sessionToken} codeHash={codeHash} onClose={() => setActiveTab('dashboard')} /></div></div>
+  );
+
   return (
     <div className="min-h-screen bg-[#050b14] pt-16 px-4 flex flex-col relative overflow-hidden">
       <Helmet><title>PhantomPath Portal | Dashboard</title></Helmet>
@@ -206,7 +211,7 @@ const PortalPage = () => {
         </motion.div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-4">
-            {/* Session Status */}
+            {/* Session Status — Top Left */}
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="bg-[#0a1120] border border-white/5 rounded-2xl p-5">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-xl bg-[#3affc2]/10 border border-[#3affc2]/20 flex items-center justify-center"><Clock className="w-4.5 h-4.5 text-[#3affc2]" /></div><div><h3 className="text-white font-semibold text-sm">Session Status</h3><p className="text-gray-600 text-[10px]">Active Pass</p></div></div>
@@ -218,12 +223,30 @@ const PortalPage = () => {
                 <div className="text-center"><p className="text-gray-600 text-[8px] uppercase tracking-widest mb-1.5" style={mono}>Minutes</p><p className="text-purple-400 text-2xl font-bold" style={mono}>{minutesRemaining}</p><p className="text-gray-600 text-[9px]" style={mono}>remaining</p></div>
               </div>
               <div className="grid grid-cols-3 gap-2">
-                <button onClick={comingSoon} className="h-9 bg-[#f59e0b]/10 border border-[#f59e0b]/30 text-[#f59e0b] hover:bg-[#f59e0b]/20 hover:border-[#f59e0b]/50 hover:shadow-[0_0_20px_rgba(245,158,11,0.15)] active:scale-95 text-[10px] rounded-xl flex items-center justify-center gap-1 transition-all" style={mono}><Mail className="w-3 h-3" />Add Msgs</button>
-                <button onClick={comingSoon} className="h-9 bg-[#f59e0b]/10 border border-[#f59e0b]/30 text-[#f59e0b] hover:bg-[#f59e0b]/20 hover:border-[#f59e0b]/50 hover:shadow-[0_0_20px_rgba(245,158,11,0.15)] active:scale-95 text-[10px] rounded-xl flex items-center justify-center gap-1 transition-all" style={mono}><PhoneCall className="w-3 h-3" />Add Mins</button>
+                <button onClick={comingSoon} className="h-9 bg-[#FACC15]/10 border border-[#FACC15]/30 text-[#FACC15] hover:bg-[#FACC15]/20 hover:border-[#FACC15]/50 hover:shadow-[0_0_20px_rgba(250,204,21,0.2)] active:scale-95 text-[10px] rounded-xl flex items-center justify-center gap-1 transition-all" style={mono}><Mail className="w-3 h-3" />Add Msgs</button>
+                <button onClick={comingSoon} className="h-9 bg-[#FACC15]/10 border border-[#FACC15]/30 text-[#FACC15] hover:bg-[#FACC15]/20 hover:border-[#FACC15]/50 hover:shadow-[0_0_20px_rgba(250,204,21,0.2)] active:scale-95 text-[10px] rounded-xl flex items-center justify-center gap-1 transition-all" style={mono}><PhoneCall className="w-3 h-3" />Add Mins</button>
                 <button onClick={comingSoon} className="h-9 bg-[#3affc2]/15 border border-[#3affc2]/30 text-[#3affc2] hover:bg-[#3affc2]/25 hover:border-[#3affc2]/50 hover:shadow-[0_0_20px_rgba(58,255,194,0.2)] active:scale-95 text-[10px] rounded-xl flex items-center justify-center gap-1 transition-all animate-pulse" style={mono}><Zap className="w-3 h-3" />Extend</button>
               </div>
             </motion.div>
-            {/* Virtual Number */}
+            {/* VPN Service — Bottom Left */}
+            {vpnService && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="bg-[#0a1120] border border-white/5 rounded-2xl p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-xl bg-[#3affc2]/10 border border-[#3affc2]/20 flex items-center justify-center"><Shield className="w-4.5 h-4.5 text-[#3affc2]" /></div><div><h3 className="text-white font-semibold text-sm">VPN Service</h3><p className="text-gray-600 text-[10px]">WireGuard Encrypted Tunnel</p></div></div>
+                  <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border ${getStatusBadge(vpnService).cls}`} style={mono}>{getStatusBadge(vpnService).text}</span>
+                </div>
+                {vpnService.status === 'ACTIVE' ? (
+                  <div className="space-y-3">
+                    <button onClick={() => downloadVpnConfig(vpnService.id)} className="w-full h-10 bg-[#3affc2]/10 border border-[#3affc2]/15 text-[#3affc2] hover:bg-[#3affc2]/20 text-xs rounded-xl flex items-center justify-center gap-2 transition-all" style={mono}><Download className="w-4 h-4" />Download Config (.conf)</button>
+                    <button onClick={() => setShowVpnGuide(true)} className="w-full h-9 bg-[#050b14] border border-white/10 text-gray-400 hover:text-[#3affc2] hover:border-[#3affc2]/20 text-[10px] rounded-xl flex items-center justify-center gap-1.5 transition-all active:scale-95" style={mono}><Shield className="w-3 h-3" />Setup Guide</button>
+                    {vpnNodes.length > 0 && (<div><p className="text-gray-600 text-[10px] mb-2 uppercase tracking-widest" style={mono}>Switch Server</p><div className="grid grid-cols-2 gap-2">{vpnNodes.map((n) => (<button key={n.id} onClick={() => switchVpnNode(vpnService.id, n.id, n.country)} className="bg-[#050b14] border border-white/5 rounded-xl py-2.5 px-3 hover:border-[#3affc2]/30 hover:bg-[#3affc2]/5 transition-all flex items-center gap-2.5"><span className="text-xl">{FLAGS[n.countryCode] || '🌍'}</span><div className="text-left"><span className="text-white text-xs font-medium block">{n.country}</span><span className="text-gray-600 text-[10px]">{n.city}</span></div></button>))}</div></div>)}
+                  </div>
+                ) : (<div className="bg-[#050b14] border border-dashed border-white/10 rounded-xl p-5 text-center"><p className="text-gray-600 text-xs" style={mono}>Provisioning...</p></div>)}
+              </motion.div>
+            )}
+          </div>
+          <div className="space-y-4">
+            {/* Virtual Number — Top Right */}
             {vnumService && (
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-[#0a1120] border border-white/5 rounded-2xl p-5">
                 <div className="flex items-center justify-between mb-4">
@@ -240,34 +263,17 @@ const PortalPage = () => {
                       </div>
                     </div>
                     <p className="text-gray-600 text-[10px] text-center" style={mono}>Your number is ready. No setup required.</p>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-3 gap-2">
                       <button onClick={() => navigateToTab('messages')} className="h-10 bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 active:scale-95 text-[11px] rounded-xl flex items-center justify-center gap-1.5 transition-all" style={mono}><MessageCircle className="w-3.5 h-3.5" />Messages</button>
                       <button onClick={() => navigateToTab('calls')} className="h-10 bg-[#3affc2]/10 border border-[#3affc2]/20 text-[#3affc2] hover:bg-[#3affc2]/20 active:scale-95 text-[11px] rounded-xl flex items-center justify-center gap-1.5 transition-all" style={mono}><Phone className="w-3.5 h-3.5" />Calls</button>
+                      <button onClick={() => navigateToTab('rooms')} className="h-10 bg-[#6B5CE7]/10 border border-[#6B5CE7]/20 text-[#6B5CE7] hover:bg-[#6B5CE7]/20 active:scale-95 text-[11px] rounded-xl flex items-center justify-center gap-1.5 transition-all" style={mono}><Users className="w-3.5 h-3.5" />Rooms</button>
                     </div>
-                    <button onClick={() => navigateToTab('rooms')} className="w-full h-10 bg-[#6B5CE7]/10 border border-[#6B5CE7]/20 text-[#6B5CE7] hover:bg-[#6B5CE7]/20 active:scale-95 text-[11px] rounded-xl flex items-center justify-center gap-1.5 transition-all mt-2" style={mono}><Users className="w-3.5 h-3.5" />Burner Rooms</button>
+                    <button onClick={() => navigateToTab('contacts')} className="w-full h-9 bg-[#050b14] border border-white/10 text-gray-400 hover:text-amber-400 hover:border-amber-400/20 text-[10px] rounded-xl flex items-center justify-center gap-1.5 transition-all active:scale-95" style={mono}><Users className="w-3 h-3" />Contacts</button>
                   </div>
                 ) : (<div className="bg-[#050b14] border border-dashed border-white/10 rounded-xl p-5 text-center"><p className="text-gray-600 text-xs" style={mono}>Provisioning...</p></div>)}
               </motion.div>
             )}
-          </div>
-          <div className="space-y-4">
-            {/* VPN */}
-            {vpnService && (
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="bg-[#0a1120] border border-white/5 rounded-2xl p-5">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-xl bg-[#3affc2]/10 border border-[#3affc2]/20 flex items-center justify-center"><Shield className="w-4.5 h-4.5 text-[#3affc2]" /></div><div><h3 className="text-white font-semibold text-sm">VPN Service</h3><p className="text-gray-600 text-[10px]">WireGuard Encrypted Tunnel</p></div></div>
-                  <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border ${getStatusBadge(vpnService).cls}`} style={mono}>{getStatusBadge(vpnService).text}</span>
-                </div>
-                {vpnService.status === 'ACTIVE' ? (
-                  <div className="space-y-3">
-                    <button onClick={() => downloadVpnConfig(vpnService.id)} className="w-full h-10 bg-[#3affc2]/10 border border-[#3affc2]/15 text-[#3affc2] hover:bg-[#3affc2]/20 text-xs rounded-xl flex items-center justify-center gap-2 transition-all" style={mono}><Download className="w-4 h-4" />Download Config (.conf)</button>
-                    <button onClick={() => setShowVpnGuide(true)} className="w-full h-9 bg-[#050b14] border border-white/10 text-gray-400 hover:text-[#3affc2] hover:border-[#3affc2]/20 text-[10px] rounded-xl flex items-center justify-center gap-1.5 transition-all active:scale-95" style={mono}><Shield className="w-3 h-3" />Setup Guide</button>
-                    {vpnNodes.length > 0 && (<div><p className="text-gray-600 text-[10px] mb-2 uppercase tracking-widest" style={mono}>Switch Server</p><div className="grid grid-cols-2 gap-2">{vpnNodes.map((n) => (<button key={n.id} onClick={() => switchVpnNode(vpnService.id, n.id, n.country)} className="bg-[#050b14] border border-white/5 rounded-xl py-2.5 px-3 hover:border-[#3affc2]/30 hover:bg-[#3affc2]/5 transition-all flex items-center gap-2.5"><span className="text-xl">{FLAGS[n.countryCode] || '🌍'}</span><div className="text-left"><span className="text-white text-xs font-medium block">{n.country}</span><span className="text-gray-600 text-[10px]">{n.city}</span></div></button>))}</div></div>)}
-                  </div>
-                ) : (<div className="bg-[#050b14] border border-dashed border-white/10 rounded-xl p-5 text-center"><p className="text-gray-600 text-xs" style={mono}>Provisioning...</p></div>)}
-              </motion.div>
-            )}
-            {/* eSIM */}
+            {/* eSIM Data — Bottom Right */}
             {esimService && (
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-[#0a1120] border border-white/5 rounded-2xl p-5">
                 <div className="flex items-center justify-between mb-4">
