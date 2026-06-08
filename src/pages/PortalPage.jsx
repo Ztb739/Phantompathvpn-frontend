@@ -16,13 +16,13 @@ const FLAGS = { AU: '🇦🇺', GB: '🇬🇧', US: '🇺🇸', DE: '🇩🇪', 
 
 const PortalPage = () => {
   const [accessCode, setAccessCode] = useState('');
-  const [view, setView] = useState(() => sessionStorage.getItem('pp_token') ? 'dashboard' : 'login');
-  const [sessionToken, setSessionToken] = useState(() => sessionStorage.getItem('pp_token') || '');
-  const [codeHash, setCodeHash] = useState(() => sessionStorage.getItem('pp_hash') || '');
+  const [view, setView] = useState(() => localStorage.getItem('pp_token') ? 'dashboard' : 'login');
+  const [sessionToken, setSessionToken] = useState(() => localStorage.getItem('pp_token') || '');
+  const [codeHash, setCodeHash] = useState(() => localStorage.getItem('pp_hash') || '');
   const [services, setServices] = useState([]);
   const [wallet, setWallet] = useState({ balance: 0, currency: 'GBP' });
   const [vpnNodes, setVpnNodes] = useState([]);
-  const [expiresAt, setExpiresAt] = useState(() => sessionStorage.getItem('pp_expires') || '');
+  const [expiresAt, setExpiresAt] = useState(() => localStorage.getItem('pp_expires') || '');
   const [switchCode, setSwitchCode] = useState('');
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -35,7 +35,7 @@ const PortalPage = () => {
 
   // Persist session across page refresh
   useEffect(() => {
-    if (sessionToken) { sessionStorage.setItem('pp_token', sessionToken); sessionStorage.setItem('pp_hash', codeHash); sessionStorage.setItem('pp_expires', expiresAt); }
+    if (sessionToken) { localStorage.setItem('pp_token', sessionToken); localStorage.setItem('pp_hash', codeHash); localStorage.setItem('pp_expires', expiresAt); }
   }, [sessionToken, codeHash, expiresAt]);
 
   // Restore session on mount
@@ -50,17 +50,13 @@ const PortalPage = () => {
 
   // PWA Back button navigation
   useEffect(() => {
-    const handlePopState = (e) => {
-      if (activeTab === 'messages' || activeTab === 'calls' || activeTab === 'rooms' || activeTab === 'contacts') {
-        e.preventDefault();
+    const handlePopState = () => {
+      if (activeTab !== 'dashboard') {
         setActiveTab('dashboard');
-      } else if (view === 'dashboard') {
-        e.preventDefault();
-        // Stay on dashboard, don't exit
-        window.history.pushState(null, '', window.location.href);
+      } else {
+        window.history.pushState({ page: 'dashboard' }, '', window.location.href);
       }
     };
-    window.history.pushState(null, '', window.location.href);
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, [activeTab, view]);
@@ -120,7 +116,7 @@ const PortalPage = () => {
   const loadVpnNodes = async (t, h) => { try { const res = await fetch(`${API_BASE}/portal/vpn-nodes`, { headers: hdrs(t, h) }); if (res.ok) { const data = await res.json(); if (data.nodes) setVpnNodes(data.nodes); } } catch (err) {} };
   const switchVpnNode = async (sid, nid, country) => { toast({ title: 'Switching...', description: `Connecting to ${country}...` }); try { const res = await fetch(`${API_BASE}/portal/vpn-switch`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...hdrs() }, body: JSON.stringify({ serviceId: sid, targetNodeId: nid }) }); const data = await res.json(); if (data.success) { toast({ title: 'Server Switched' }); loadServices(sessionToken, codeHash); } } catch (err) {} };
   const downloadVpnConfig = async (sid) => { try { const res = await fetch(`${API_BASE}/portal/vpn-config/${sid}`, { headers: hdrs() }); if (!res.ok) throw new Error(); const blob = await res.blob(); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'phantompath.conf'; a.click(); URL.revokeObjectURL(a.href); toast({ title: 'Config Downloaded' }); } catch (err) { toast({ title: 'Not Available', variant: 'destructive' }); } };
-  const handleLogout = () => { sessionStorage.removeItem('pp_token'); sessionStorage.removeItem('pp_hash'); sessionStorage.removeItem('pp_expires'); setSessionToken(''); setCodeHash(''); setServices([]); setWallet({ balance: 0, currency: 'GBP' }); setVpnNodes([]); setAccessCode(''); setError(''); setActiveTab('dashboard'); setView('login'); };
+  const handleLogout = () => { localStorage.removeItem('pp_token'); localStorage.removeItem('pp_hash'); localStorage.removeItem('pp_expires'); setSessionToken(''); setCodeHash(''); setServices([]); setWallet({ balance: 0, currency: 'GBP' }); setVpnNodes([]); setAccessCode(''); setError(''); setActiveTab('dashboard'); setView('login'); };
 
   const schemaPortal = { '@context': 'https://schema.org', '@type': 'WebPage', 'name': 'PhantomPath Portal', 'url': 'https://phantompathvpn.com/portal' };
   const daysLeft = expiresAt ? Math.max(0, Math.ceil((new Date(expiresAt) - new Date()) / 86400000)) : 0;
