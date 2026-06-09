@@ -267,7 +267,7 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
               </div>
               <div className="flex items-center justify-between">
                 <p className="text-[#8696a0] text-[13px] truncate pr-2">
-                  {c.direction === 'OUTBOUND' && <StatusTicks status="DELIVERED" />}
+                  {c.direction === 'OUTBOUND' && StatusTicks({ status: "DELIVERED" })}
                   {c.direction === 'OUTBOUND' ? ' ' : ''}{c.lastMessage}
                 </p>
                 {c.unreadCount > 0 && (
@@ -340,7 +340,7 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
                           <p className="text-[#e9edef] text-[14.2px] leading-[19px] break-words">{m.body}</p>
                           <div className="flex items-center justify-end gap-1 mt-1">
                             <span className="text-[10px] text-[#ffffff80]">{fmtMsgTime(m.createdAt)}</span>
-                            {isOut && <StatusTicks status={m.status} />}
+                            {isOut && StatusTicks({ status: m.status })}
                           </div>
                         </div>
                       </div>
@@ -420,8 +420,8 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
 
   return (
     <div className="flex h-full bg-[#111b21] overflow-hidden rounded-none md:rounded-lg">
-      <Sidebar />
-      <ThreadView />
+      {Sidebar()}
+      {ThreadView()}
     </div>
   );
 };
