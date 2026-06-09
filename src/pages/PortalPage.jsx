@@ -88,8 +88,16 @@ const PortalPage = () => {
 
   // Push history state when navigating to messages/calls
   const navigateToTab = (tab) => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
     window.history.pushState({ tab }, '', window.location.href);
     setActiveTab(tab);
+    requestAnimationFrame(() => {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    });
   };
 
   const hdrs = (t, h) => ({ 'x-session-token': t || sessionToken, 'x-code-hash': h || codeHash });
