@@ -26,7 +26,7 @@ const BurnerRoomsPanel = ({ sessionToken, codeHash, onClose }) => {
   const hdrs = () => ({ 'Content-Type': 'application/json', 'x-session-token': sessionToken, 'x-code-hash': codeHash });
   const mono = { fontFamily: "'SF Mono', 'Fira Code', 'Courier New', monospace" };
 
-  const isDemo = !sessionToken || sessionToken === '';
+  const isDemo = !sessionToken || sessionToken === '' || sessionToken === 'demo-token';
 
   const DEMO_ROOMS = [
     { id: 'demo-room-1', name: 'Ghost Lounge', memberCount: 4, expiresAt: new Date(Date.now() + 3600000).toISOString(), autoDeleteHours: 1, isCreator: true, lastMessage: { body: 'Welcome to the room', senderName: 'Phantom1', createdAt: new Date(Date.now() - 300000).toISOString() }, createdAt: new Date(Date.now() - 1800000).toISOString() },

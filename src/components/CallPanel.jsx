@@ -24,7 +24,7 @@ const CallPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId, onC
   const currentCallRef = useRef(null);
 
   const hdrs = () => ({ 'Content-Type': 'application/json', 'x-session-token': sessionToken, 'x-code-hash': codeHash });
-  const isDemo = !sessionToken || sessionToken === '';
+  const isDemo = !sessionToken || sessionToken === '' || sessionToken === 'demo-token';
 
   const DEMO_CALLS = [
     { id: 'c1', contactNumber: '+44 7700 900123', direction: 'OUTBOUND', status: 'COMPLETED', durationSeconds: 185, createdAt: new Date(Date.now() - 3600000).toISOString() },

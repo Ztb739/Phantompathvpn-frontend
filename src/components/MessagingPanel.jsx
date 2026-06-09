@@ -72,7 +72,7 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
     ],
   };
 
-  const isDemo = !sessionToken || sessionToken === '';
+  const isDemo = !sessionToken || sessionToken === '' || sessionToken === 'demo-token';
 
   const SMS_COST = 0.05;
   const messagesRemaining = Math.floor(walletBalance / SMS_COST);

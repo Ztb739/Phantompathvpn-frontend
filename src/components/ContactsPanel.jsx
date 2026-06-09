@@ -16,7 +16,7 @@ const ContactsPanel = ({ sessionToken, codeHash, onClose, onSelectContact }) => 
   const [search, setSearch] = useState('');
 
   const hdrs = () => ({ 'Content-Type': 'application/json', 'x-session-token': sessionToken, 'x-code-hash': codeHash });
-  const isDemo = !sessionToken || sessionToken === '';
+  const isDemo = !sessionToken || sessionToken === '' || sessionToken === 'demo-token';
 
   const DEMO_CONTACTS = [
     { id: 'd1', phoneNumber: '+44 7700 900123', displayName: 'Sarah M' },
