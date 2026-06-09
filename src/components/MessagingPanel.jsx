@@ -125,17 +125,7 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
     return () => { unsub1(); unsub2(); unsub3(); unsub4(); };
   }, [connected, activeContact, isDemo]);
 
-  // Send typing indicator (debounced, separate from input onChange)
-  const lastTypingRef = useRef(0);
-  useEffect(() => {
-    if (!newMessage || !connected || isDemo || !activeContact) return;
-    const now = Date.now();
-    if (now - lastTypingRef.current > 3000) {
-      lastTypingRef.current = now;
-      emit('typing', { contactNumber: activeContact, isTyping: true });
-      setTimeout(() => emit('typing', { contactNumber: activeContact, isTyping: false }), 3000);
-    }
-  }, [newMessage]);
+  // Typing indicator handled server-side
 
   // Keyboard-safe chat - Visual Viewport API
   useEffect(() => {
@@ -397,16 +387,15 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
             <div className="flex-1 relative">
               <input
                 ref={inputRef}
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); } }}
+                defaultValue=""
+                onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); const val = inputRef.current?.value?.trim(); if (val) { setNewMessage(val); setTimeout(() => { sendMsg(); inputRef.current.value = ''; }, 0); } } }}
                 placeholder="Type a message"
                 className="w-full h-10 bg-[#2a3942] text-[#e9edef] text-sm placeholder:text-[#8696a0] rounded-lg px-4 border-none outline-none focus:ring-0"
                 maxLength={1600}
               />
             </div>
-            <button onClick={sendMsg} disabled={sending || !newMessage.trim()} className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${newMessage.trim() ? 'bg-[#00a884] hover:bg-[#06cf9c]' : 'bg-transparent'}`}>
-              {sending ? <Loader2 className="w-4.5 h-4.5 text-[#111b21] animate-spin" /> : <Send className={`w-4.5 h-4.5 ${newMessage.trim() ? 'text-[#111b21]' : 'text-[#8696a0]'}`} />}
+            <button onClick={() => { const val = inputRef.current?.value?.trim(); if (val) { setNewMessage(val); setTimeout(() => { sendMsg(); inputRef.current.value = ''; }, 0); } }} className="w-9 h-9 rounded-full bg-[#00a884] hover:bg-[#06cf9c] flex items-center justify-center flex-shrink-0 transition-colors">
+              {sending ? <Loader2 className="w-4.5 h-4.5 text-[#111b21] animate-spin" /> : <Send className="w-4.5 h-4.5 text-[#111b21]" />}
             </button>
           </div>
         </>
