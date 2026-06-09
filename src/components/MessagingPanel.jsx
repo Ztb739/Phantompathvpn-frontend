@@ -28,7 +28,6 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const pollRef = useRef(null);
-  const typingTimeoutRef = useRef(null);
 
   const { connected, on, emit } = useSocket(accessCodeId);
 
@@ -126,15 +125,17 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
     return () => { unsub1(); unsub2(); unsub3(); unsub4(); };
   }, [connected, activeContact, isDemo]);
 
-  // Send typing indicator
-  const handleTyping = useCallback(() => {
-    if (!connected || isDemo || !activeContact) return;
-    emit('typing', { contactNumber: activeContact, isTyping: true });
-    clearTimeout(typingTimeoutRef.current);
-    typingTimeoutRef.current = setTimeout(() => {
-      emit('typing', { contactNumber: activeContact, isTyping: false });
-    }, 3000);
-  }, [connected, isDemo, activeContact, emit]);
+  // Send typing indicator (debounced, separate from input onChange)
+  const lastTypingRef = useRef(0);
+  useEffect(() => {
+    if (!newMessage || !connected || isDemo || !activeContact) return;
+    const now = Date.now();
+    if (now - lastTypingRef.current > 3000) {
+      lastTypingRef.current = now;
+      emit('typing', { contactNumber: activeContact, isTyping: true });
+      setTimeout(() => emit('typing', { contactNumber: activeContact, isTyping: false }), 3000);
+    }
+  }, [newMessage]);
 
   // Keyboard-safe chat - Visual Viewport API
   useEffect(() => {
@@ -397,7 +398,7 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
               <input
                 ref={inputRef}
                 value={newMessage}
-                onChange={(e) => { setNewMessage(e.target.value); handleTyping(); }}
+                onChange={(e) => setNewMessage(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); } }}
                 placeholder="Type a message"
                 className="w-full h-10 bg-[#2a3942] text-[#e9edef] text-sm placeholder:text-[#8696a0] rounded-lg px-4 border-none outline-none focus:ring-0"
