@@ -241,3 +241,13 @@ button {
   .px-4 { padding-left: 12px; padding-right: 12px; }
   .gap-4 { gap: 12px; }
 }
+
+/* Fix desktop scroll clip at top */
+.pt-16 {
+  scroll-margin-top: 0;
+}
+
+#root {
+  overflow-x: hidden;
+  position: relative;
+}

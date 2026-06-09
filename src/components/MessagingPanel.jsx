@@ -224,7 +224,7 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${messagesRemaining > 10 ? 'bg-[#00a884]/10 text-[#00a884]' : messagesRemaining > 0 ? 'bg-[#FACC15]/10 text-[#FACC15]' : 'bg-[#ef4444]/10 text-[#ef4444]'}`}>{messagesRemaining} msgs left</span>
+          <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${messagesRemaining > 10 ? 'bg-[#00a884]/10 text-[#00a884]' : messagesRemaining > 0 ? 'bg-[#FFE600]/10 text-[#FFE600]' : 'bg-[#ef4444]/10 text-[#ef4444]'}`}>{messagesRemaining} msgs left</span>
           {connected && <span className="w-2 h-2 rounded-full bg-[#00a884] animate-pulse" title="Live" />}
           <button onClick={() => setShowNewChat(!showNewChat)} className="w-9 h-9 rounded-full hover:bg-[#2a3942] flex items-center justify-center transition-colors" title="New chat">
             <Plus className="w-5 h-5 text-[#aebac1]" />
@@ -375,12 +375,12 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
           {/* Top-up prompt */}
           {showTopUp && (
             <div className="px-3 py-2.5 bg-[#182229] border-t border-[#222d35]">
-              <div className="bg-[#1a2517] border border-[#FACC15]/20 rounded-xl p-4 text-center shadow-[0_0_20px_rgba(245,158,11,0.05)]">
+              <div className="bg-[#1a2517] border border-[#FFE600]/20 rounded-xl p-4 text-center shadow-[0_0_20px_rgba(245,158,11,0.05)]">
                 <p className="text-[#e9edef] text-sm font-medium mb-1">Messages Depleted</p>
                 <p className="text-[#8696a0] text-xs mb-3">Add more to continue chatting</p>
                 <div className="flex gap-2 justify-center mb-2">
-                  <button onClick={() => { toast({ title: 'Private Beta', description: 'Top-ups coming soon.' }); setShowTopUp(false); }} className="h-8 px-4 bg-[#FACC15]/20 border border-[#FACC15]/40 text-[#FACC15] text-xs font-bold rounded-lg hover:bg-[#FACC15]/30 hover:shadow-[0_0_15px_rgba(245,158,11,0.2)] active:scale-95 transition-all">£1 — 20 msgs</button>
-                  <button onClick={() => { toast({ title: 'Private Beta', description: 'Top-ups coming soon.' }); setShowTopUp(false); }} className="h-8 px-4 bg-[#FACC15]/20 border border-[#FACC15]/40 text-[#FACC15] text-xs font-bold rounded-lg hover:bg-[#FACC15]/30 hover:shadow-[0_0_15px_rgba(245,158,11,0.2)] active:scale-95 transition-all">£3 — 60 msgs</button>
+                  <button onClick={() => { toast({ title: 'Private Beta', description: 'Top-ups coming soon.' }); setShowTopUp(false); }} className="h-8 px-4 bg-[#FFE600]/20 border border-[#FFE600]/40 text-[#FFE600] text-xs font-bold rounded-lg hover:bg-[#FFE600]/30 hover:shadow-[0_0_15px_rgba(245,158,11,0.2)] active:scale-95 transition-all">£1 — 20 msgs</button>
+                  <button onClick={() => { toast({ title: 'Private Beta', description: 'Top-ups coming soon.' }); setShowTopUp(false); }} className="h-8 px-4 bg-[#FFE600]/20 border border-[#FFE600]/40 text-[#FFE600] text-xs font-bold rounded-lg hover:bg-[#FFE600]/30 hover:shadow-[0_0_15px_rgba(245,158,11,0.2)] active:scale-95 transition-all">£3 — 60 msgs</button>
                   <button onClick={() => { toast({ title: 'Private Beta', description: 'Top-ups coming soon.' }); setShowTopUp(false); }} className="h-8 px-4 bg-[#3affc2]/20 border border-[#3affc2]/40 text-[#3affc2] text-xs font-bold rounded-lg hover:bg-[#3affc2]/30 hover:shadow-[0_0_15px_rgba(58,255,194,0.2)] active:scale-95 transition-all animate-pulse">£5 — 100 msgs</button>
                 </div>
                 <button onClick={() => setShowTopUp(false)} className="text-[#8696a0] text-[11px] hover:text-[#e9edef] transition-colors">Dismiss</button>

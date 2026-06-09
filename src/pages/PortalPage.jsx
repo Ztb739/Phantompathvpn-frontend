@@ -206,47 +206,44 @@ const PortalPage = () => {
           <button onClick={handleLogout} className="h-8 px-3 rounded-lg border border-white/10 text-gray-500 hover:text-white hover:border-red-500/30 text-xs flex items-center gap-1.5 transition-all" style={mono}><LogOut className="w-3.5 h-3.5" />Exit</button>
         </motion.div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-4">
             {/* Session Status — Top Left */}
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="bg-[#0a1120] border border-white/5 rounded-2xl p-5">
               <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-xl bg-[#3affc2]/10 border border-[#3affc2]/20 flex items-center justify-center"><Clock className="w-4.5 h-4.5 text-[#3affc2]" /></div><div><h3 className="text-white font-semibold text-sm">Session Status</h3><p className="text-gray-600 text-[10px]">Active Pass</p></div></div>
+                <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-xl bg-[#3affc2]/10 border border-[#3affc2]/20 flex items-center justify-center"><Clock className="w-4.5 h-4.5 text-[#3affc2]" /></div><div><h3 className="text-white font-semibold text-sm">Session Status</h3><p className="text-white/70 text-[10px]">Active Pass</p></div></div>
                 <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border ${isSessionExpired ? 'text-red-400 bg-red-400/10 border-red-400/20' : 'text-[#3affc2] bg-[#3affc2]/10 border-[#3affc2]/20'}`} style={mono}>{isSessionExpired ? 'EXPIRED' : 'ACTIVE'}</span>
               </div>
               <div className="bg-[#050b14] rounded-xl p-4 grid grid-cols-3 gap-3 mb-4">
-                <div className="text-center"><p className="text-gray-600 text-[8px] uppercase tracking-widest mb-1.5" style={mono}>Expires In</p><p className="text-[#3affc2] text-2xl font-bold" style={mono}>{daysLeft}</p><p className="text-gray-600 text-[9px]" style={mono}>days</p></div>
-                <div className="text-center border-x border-white/5"><p className="text-gray-600 text-[8px] uppercase tracking-widest mb-1.5" style={mono}>Messages</p><p className="text-amber-400 text-2xl font-bold" style={mono}>{messagesRemaining}</p><p className="text-gray-600 text-[9px]" style={mono}>remaining</p></div>
-                <div className="text-center"><p className="text-gray-600 text-[8px] uppercase tracking-widest mb-1.5" style={mono}>Minutes</p><p className="text-purple-400 text-2xl font-bold" style={mono}>{minutesRemaining}</p><p className="text-gray-600 text-[9px]" style={mono}>remaining</p></div>
+                <div className="text-center"><p className="text-white/60 text-[8px] uppercase tracking-widest mb-1.5" style={mono}>Expires In</p><p className="text-[#3affc2] text-2xl font-bold" style={mono}>{daysLeft}</p><p className="text-white/50 text-[9px]" style={mono}>days</p></div>
+                <div className="text-center border-x border-white/5"><p className="text-white/60 text-[8px] uppercase tracking-widest mb-1.5" style={mono}>Messages</p><p className="text-amber-400 text-2xl font-bold" style={mono}>{messagesRemaining}</p><p className="text-white/50 text-[9px]" style={mono}>remaining</p></div>
+                <div className="text-center"><p className="text-white/60 text-[8px] uppercase tracking-widest mb-1.5" style={mono}>Minutes</p><p className="text-purple-400 text-2xl font-bold" style={mono}>{minutesRemaining}</p><p className="text-white/50 text-[9px]" style={mono}>remaining</p></div>
               </div>
               <div className="grid grid-cols-3 gap-2">
-                <button onClick={comingSoon} className="h-9 bg-[#FACC15]/10 border border-[#FACC15]/30 text-[#FACC15] hover:bg-[#FACC15]/20 hover:border-[#FACC15]/50 hover:shadow-[0_0_20px_rgba(250,204,21,0.2)] active:scale-95 text-[10px] rounded-xl flex items-center justify-center gap-1 transition-all" style={mono}><Mail className="w-3 h-3" />Add Msgs</button>
-                <button onClick={comingSoon} className="h-9 bg-[#FACC15]/10 border border-[#FACC15]/30 text-[#FACC15] hover:bg-[#FACC15]/20 hover:border-[#FACC15]/50 hover:shadow-[0_0_20px_rgba(250,204,21,0.2)] active:scale-95 text-[10px] rounded-xl flex items-center justify-center gap-1 transition-all" style={mono}><PhoneCall className="w-3 h-3" />Add Mins</button>
+                <button onClick={comingSoon} className="h-9 bg-[#FFE600]/10 border border-[#FFE600]/30 text-[#FFE600] hover:bg-[#FFE600]/20 hover:border-[#FFE600]/50 hover:shadow-[0_0_20px_rgba(250,204,21,0.2)] active:scale-95 text-[10px] rounded-xl flex items-center justify-center gap-1 transition-all" style={mono}><Mail className="w-3 h-3" />Add Msgs</button>
+                <button onClick={comingSoon} className="h-9 bg-[#FFE600]/10 border border-[#FFE600]/30 text-[#FFE600] hover:bg-[#FFE600]/20 hover:border-[#FFE600]/50 hover:shadow-[0_0_20px_rgba(250,204,21,0.2)] active:scale-95 text-[10px] rounded-xl flex items-center justify-center gap-1 transition-all" style={mono}><PhoneCall className="w-3 h-3" />Add Mins</button>
                 <button onClick={comingSoon} className="h-9 bg-[#3affc2]/15 border border-[#3affc2]/30 text-[#3affc2] hover:bg-[#3affc2]/25 hover:border-[#3affc2]/50 hover:shadow-[0_0_20px_rgba(58,255,194,0.2)] active:scale-95 text-[10px] rounded-xl flex items-center justify-center gap-1 transition-all animate-pulse" style={mono}><Zap className="w-3 h-3" />Extend</button>
               </div>
             </motion.div>
             {/* VPN Service — Bottom Left */}
             {vpnService && (
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="bg-[#0a1120] border border-white/5 rounded-2xl p-5">
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="order-3 bg-[#0a1120] border border-white/5 rounded-2xl p-5">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-xl bg-[#3affc2]/10 border border-[#3affc2]/20 flex items-center justify-center"><Shield className="w-4.5 h-4.5 text-[#3affc2]" /></div><div><h3 className="text-white font-semibold text-sm">VPN Service</h3><p className="text-gray-600 text-[10px]">WireGuard Encrypted Tunnel</p></div></div>
+                  <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-xl bg-[#3affc2]/10 border border-[#3affc2]/20 flex items-center justify-center"><Shield className="w-4.5 h-4.5 text-[#3affc2]" /></div><div><h3 className="text-white font-semibold text-sm">VPN Service</h3><p className="text-white/70 text-[10px]">WireGuard Encrypted Tunnel</p></div></div>
                   <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border ${getStatusBadge(vpnService).cls}`} style={mono}>{getStatusBadge(vpnService).text}</span>
                 </div>
                 {vpnService.status === 'ACTIVE' ? (
                   <div className="space-y-3">
                     <button onClick={() => downloadVpnConfig(vpnService.id)} className="w-full h-10 bg-[#3affc2]/10 border border-[#3affc2]/15 text-[#3affc2] hover:bg-[#3affc2]/20 text-xs rounded-xl flex items-center justify-center gap-2 transition-all" style={mono}><Download className="w-4 h-4" />Download Config (.conf)</button>
-                    <button onClick={() => setShowVpnGuide(true)} className="w-full h-9 bg-[#050b14] border border-white/10 text-gray-400 hover:text-[#3affc2] hover:border-[#3affc2]/20 text-[10px] rounded-xl flex items-center justify-center gap-1.5 transition-all active:scale-95" style={mono}><Shield className="w-3 h-3" />Setup Guide</button>
-                    {vpnNodes.length > 0 && (<div><p className="text-gray-600 text-[10px] mb-2 uppercase tracking-widest" style={mono}>Switch Server</p><div className="grid grid-cols-2 gap-2">{vpnNodes.map((n) => (<button key={n.id} onClick={() => switchVpnNode(vpnService.id, n.id, n.country)} className="bg-[#050b14] border border-white/5 rounded-xl py-2.5 px-3 hover:border-[#3affc2]/30 hover:bg-[#3affc2]/5 transition-all flex items-center gap-2.5"><span className="text-xl">{FLAGS[n.countryCode] || '🌍'}</span><div className="text-left"><span className="text-white text-xs font-medium block">{n.country}</span><span className="text-gray-600 text-[10px]">{n.city}</span></div></button>))}</div></div>)}
+                    <button onClick={() => setShowVpnGuide(true)} className="w-full h-9 bg-[#050b14] border border-white/10 text-[#FFE600] hover:text-[#FFE600] hover:border-[#FFE600]/30 hover:shadow-[0_0_15px_rgba(255,230,0,0.15)] text-[10px] rounded-xl flex items-center justify-center gap-1.5 transition-all active:scale-95" style={mono}><Shield className="w-3 h-3" />Setup Guide</button>
+                    {vpnNodes.length > 0 && (<div><p className="text-white/60 text-[10px] mb-2 uppercase tracking-widest" style={mono}>Switch Server</p><div className="grid grid-cols-2 gap-2">{vpnNodes.map((n) => (<button key={n.id} onClick={() => switchVpnNode(vpnService.id, n.id, n.country)} className="bg-[#050b14] border border-white/5 rounded-xl py-2.5 px-3 hover:border-[#3affc2]/30 hover:bg-[#3affc2]/5 transition-all flex items-center gap-2.5"><span className="text-xl">{FLAGS[n.countryCode] || '🌍'}</span><div className="text-left"><span className="text-white text-xs font-medium block">{n.country}</span><span className="text-gray-600 text-[10px]">{n.city}</span></div></button>))}</div></div>)}
                   </div>
                 ) : (<div className="bg-[#050b14] border border-dashed border-white/10 rounded-xl p-5 text-center"><p className="text-gray-600 text-xs" style={mono}>Provisioning...</p></div>)}
               </motion.div>
             )}
-          </div>
-          <div className="space-y-4">
             {/* Virtual Number — Top Right */}
             {vnumService && (
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-[#0a1120] border border-white/5 rounded-2xl p-5">
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="order-2 bg-[#0a1120] border border-white/5 rounded-2xl p-5">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center"><Phone className="w-4.5 h-4.5 text-amber-400" /></div><div><h3 className="text-white font-semibold text-sm">Virtual Number</h3><p className="text-gray-600 text-[10px]">Private communication line</p></div></div>
+                  <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center"><Phone className="w-4.5 h-4.5 text-amber-400" /></div><div><h3 className="text-white font-semibold text-sm">Virtual Number</h3><p className="text-white/70 text-[10px]">Private communication line</p></div></div>
                   <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border ${getStatusBadge(vnumService).cls}`} style={mono}>{getStatusBadge(vnumService).text}</span>
                 </div>
                 {vnumService.numberDetails ? (
@@ -258,7 +255,7 @@ const PortalPage = () => {
                         <div className="bg-[#0a1120] rounded-lg px-3 py-2 text-center border border-white/5"><p className="text-gray-600 text-[8px] uppercase" style={mono}>Voice</p><p className={`text-xs font-bold ${vnumService.numberDetails.voiceEnabled ? 'text-[#3affc2]' : 'text-gray-600'}`} style={mono}>{vnumService.numberDetails.voiceEnabled ? 'ON' : 'OFF'}</p></div>
                       </div>
                     </div>
-                    <p className="text-gray-600 text-[10px] text-center" style={mono}>Your number is ready. No setup required.</p>
+                    <p className="text-white/70 text-[10px] text-center" style={mono}>Your number is ready. No setup required.</p>
                     <div className="grid grid-cols-3 gap-2">
                       <button onClick={() => navigateToTab('messages')} className="h-10 bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 active:scale-95 text-[11px] rounded-xl flex items-center justify-center gap-1.5 transition-all" style={mono}><MessageCircle className="w-3.5 h-3.5" />Messages</button>
                       <button onClick={() => navigateToTab('calls')} className="h-10 bg-[#3affc2]/10 border border-[#3affc2]/20 text-[#3affc2] hover:bg-[#3affc2]/20 active:scale-95 text-[11px] rounded-xl flex items-center justify-center gap-1.5 transition-all" style={mono}><Phone className="w-3.5 h-3.5" />Calls</button>
@@ -271,9 +268,9 @@ const PortalPage = () => {
             )}
             {/* eSIM Data — Bottom Right */}
             {esimService && (
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-[#0a1120] border border-white/5 rounded-2xl p-5">
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="order-4 bg-[#0a1120] border border-white/5 rounded-2xl p-5">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center"><Smartphone className="w-4.5 h-4.5 text-blue-400" /></div><div><h3 className="text-white font-semibold text-sm">eSIM Data</h3><p className="text-gray-600 text-[10px]">Mobile data via eSIM</p></div></div>
+                  <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center"><Smartphone className="w-4.5 h-4.5 text-blue-400" /></div><div><h3 className="text-white font-semibold text-sm">eSIM Data</h3><p className="text-white/70 text-[10px]">Mobile data via eSIM</p></div></div>
                   <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border ${getStatusBadge(esimService).cls}`} style={mono}>{getStatusBadge(esimService).text}</span>
                 </div>
                 {esimService.esimDetails ? (
@@ -281,14 +278,13 @@ const PortalPage = () => {
                     {esimService.esimDetails.qrData ? (
                       <div className="flex items-center gap-4"><div className="bg-white rounded-xl p-2.5 shadow-lg"><img src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(esimService.esimDetails.qrData)}`} alt="eSIM QR" className="w-28 h-28" /></div><div className="flex-1"><p className="text-gray-500 text-[11px] leading-relaxed">Scan this QR code in <span className="text-white">Settings → Cellular → Add eSIM</span> to install your data plan.</p><p className="text-[10px] text-gray-600 mt-2" style={mono}>ICCID: <span className="text-blue-400">{esimService.esimDetails.iccid || '...'}</span></p></div></div>
                     ) : (
-                      <div className="bg-[#050b14] border border-dashed border-white/10 rounded-xl p-5 text-center"><p className="text-gray-500 text-sm mb-1" style={mono}>QR pending activation</p><p className="text-[10px] text-gray-600" style={mono}>ICCID: <span className="text-blue-400">{esimService.esimDetails.iccid || '...'}</span></p></div>
+                      <div className="bg-[#050b14] border border-dashed border-white/10 rounded-xl p-5 text-center"><p className="text-white/70 text-sm mb-1" style={mono}>QR pending activation</p><p className="text-[10px] text-gray-600" style={mono}>ICCID: <span className="text-blue-400">{esimService.esimDetails.iccid || '...'}</span></p></div>
                     )}
-                    <button onClick={() => setShowEsimGuide(true)} className="w-full h-9 bg-[#050b14] border border-white/10 text-gray-400 hover:text-blue-400 hover:border-blue-400/20 text-[10px] rounded-xl flex items-center justify-center gap-1.5 transition-all active:scale-95" style={mono}><Smartphone className="w-3 h-3" />Setup Guide</button>
+                    <button onClick={() => setShowEsimGuide(true)} className="w-full h-9 bg-[#050b14] border border-white/10 text-[#FFE600] hover:text-[#FFE600] hover:border-[#FFE600]/30 hover:shadow-[0_0_15px_rgba(255,230,0,0.15)] text-[10px] rounded-xl flex items-center justify-center gap-1.5 transition-all active:scale-95" style={mono}><Smartphone className="w-3 h-3" />Setup Guide</button>
                   </div>
                 ) : (<div className="bg-[#050b14] border border-dashed border-white/10 rounded-xl p-5 text-center"><p className="text-gray-600 text-xs" style={mono}>Provisioning...</p></div>)}
               </motion.div>
             )}
-          </div>
         </div>
         {/* Loading State */}
         {servicesLoading && services.length === 0 && (
