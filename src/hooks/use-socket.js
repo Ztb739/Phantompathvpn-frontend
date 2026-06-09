@@ -8,7 +8,7 @@ export const useSocket = (accessCodeId) => {
   const [connected, setConnected] = useState(false);
 
   useEffect(() => {
-    if (!accessCodeId) return;
+    if (!accessCodeId || accessCodeId === 'demo-hash') return;
 
     const socket = io(`${WS_URL}/ws`, {
       transports: ['websocket', 'polling'],
