@@ -405,15 +405,9 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
                 maxLength={1600}
               />
             </div>
-            {newMessage.trim() ? (
-              <button onClick={sendMsg} disabled={sending} className="w-9 h-9 rounded-full bg-[#00a884] hover:bg-[#06cf9c] flex items-center justify-center flex-shrink-0 transition-colors">
-                {sending ? <Loader2 className="w-4.5 h-4.5 text-[#111b21] animate-spin" /> : <Send className="w-4.5 h-4.5 text-[#111b21]" />}
-              </button>
-            ) : (
-              <button className="w-9 h-9 rounded-full hover:bg-[#2a3942] flex items-center justify-center flex-shrink-0" title="Voice message">
-                <Mic className="w-5 h-5 text-[#aebac1]" />
-              </button>
-            )}
+            <button onClick={sendMsg} disabled={sending || !newMessage.trim()} className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${newMessage.trim() ? 'bg-[#00a884] hover:bg-[#06cf9c]' : 'bg-transparent'}`}>
+              {sending ? <Loader2 className="w-4.5 h-4.5 text-[#111b21] animate-spin" /> : <Send className={`w-4.5 h-4.5 ${newMessage.trim() ? 'text-[#111b21]' : 'text-[#8696a0]'}`} />}
+            </button>
           </div>
         </>
       ) : (
