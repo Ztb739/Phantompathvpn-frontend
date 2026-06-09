@@ -96,6 +96,7 @@ const PortalPage = () => {
     if (!accessCode.trim()) { toast({ title: 'Access Code Required', description: 'Please enter your PhantomPath access code.', variant: 'destructive' }); return; }
     setError(''); setView('loading');
     if (accessCode === '19961730') {
+      setSessionToken('demo-token'); setCodeHash('demo-hash');
       const d = new Date(); d.setDate(d.getDate() + 30);
       setExpiresAt(d.toISOString());
       setServices([
@@ -243,10 +244,12 @@ const PortalPage = () => {
                         <div className="bg-[#0a1120] rounded-lg px-3 py-2 text-center border border-white/5"><p className="text-gray-600 text-[8px] uppercase" style={mono}>Voice</p><p className={`text-xs font-bold ${vnumService.numberDetails.voiceEnabled ? 'text-[#3affc2]' : 'text-gray-600'}`} style={mono}>{vnumService.numberDetails.voiceEnabled ? 'ON' : 'OFF'}</p></div>
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-3 gap-2">
                       <button onClick={() => navigateToTab('messages')} className="h-10 bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 active:scale-95 text-[11px] rounded-xl flex items-center justify-center gap-1.5 transition-all" style={mono}><MessageCircle className="w-3.5 h-3.5" />Messages</button>
                       <button onClick={() => navigateToTab('calls')} className="h-10 bg-[#3affc2]/10 border border-[#3affc2]/20 text-[#3affc2] hover:bg-[#3affc2]/20 active:scale-95 text-[11px] rounded-xl flex items-center justify-center gap-1.5 transition-all" style={mono}><Phone className="w-3.5 h-3.5" />Calls</button>
+                      <button onClick={() => navigateToTab('rooms')} className="h-10 bg-[#6B5CE7]/10 border border-[#6B5CE7]/20 text-[#6B5CE7] hover:bg-[#6B5CE7]/20 active:scale-95 text-[11px] rounded-xl flex items-center justify-center gap-1.5 transition-all" style={mono}><Users className="w-3.5 h-3.5" />Rooms</button>
                     </div>
+                    <button onClick={() => navigateToTab('contacts')} className="w-full h-9 bg-[#050b14] border border-white/10 text-gray-400 hover:text-amber-400 hover:border-amber-400/20 text-[10px] rounded-xl flex items-center justify-center gap-1.5 transition-all active:scale-95" style={mono}><Users className="w-3 h-3" />Contacts</button>
                   </div>
                 ) : (<div className="bg-[#050b14] border border-dashed border-white/10 rounded-xl p-5 text-center"><p className="text-gray-600 text-xs" style={mono}>Provisioning...</p></div>)}
               </motion.div>
