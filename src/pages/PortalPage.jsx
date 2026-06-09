@@ -135,6 +135,13 @@ const PortalPage = () => {
 
   const schemaPortal = { '@context': 'https://schema.org', '@type': 'WebPage', 'name': 'PhantomPath Portal', 'url': 'https://phantompathvpn.com/portal' };
   const daysLeft = expiresAt ? Math.max(0, Math.ceil((new Date(expiresAt) - new Date()) / 86400000)) : 0;
+  const isSessionExpired = expiresAt && new Date(expiresAt) < new Date();
+  const getStatusBadge = (s) => {
+    if (s?.expiresAt && new Date(s.expiresAt) < new Date()) return { text: 'EXPIRED', cls: 'text-red-400 bg-red-400/10 border-red-400/20' };
+    if (s?.status === 'ACTIVE') return { text: 'ACTIVE', cls: 'text-[#3affc2] bg-[#3affc2]/10 border-[#3affc2]/20' };
+    if (s?.status === 'PENDING') return { text: 'PENDING', cls: 'text-[#f59e0b] bg-[#f59e0b]/10 border-[#f59e0b]/20' };
+    return { text: s?.status || 'UNKNOWN', cls: 'text-gray-500 bg-gray-500/10 border-gray-500/20' };
+  };
   const msgCost = 0.05;
   const minCost = 0.10;
   const messagesRemaining = Math.floor(wallet.balance / msgCost);
