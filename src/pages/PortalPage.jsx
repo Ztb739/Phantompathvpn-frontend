@@ -40,20 +40,45 @@ const PortalPage = () => {
 
   // Restore session on mount
   useEffect(() => {
-    if (sessionToken && view === 'dashboard') { loadServices(sessionToken, codeHash); loadVpnNodes(sessionToken, codeHash); }
+    if (sessionToken && view === 'dashboard') {
+      if (sessionToken === 'demo-token') {
+        // Restore demo data
+        const d = new Date(); d.setDate(d.getDate() + 30);
+        setExpiresAt(d.toISOString());
+        setServices([
+          { id: 'demo-vpn', type: 'VPN', status: 'ACTIVE', expiresAt: d.toISOString() },
+          { id: 'demo-esim', type: 'ESIM', status: 'ACTIVE', expiresAt: d.toISOString(), esimDetails: { iccid: 'DEMO-8944500000000001', activationCode: 'DEMO', qrData: '', status: 'ACTIVE' } },
+          { id: 'demo-vnum', type: 'VIRTUAL_NUMBER', status: 'ACTIVE', expiresAt: d.toISOString(), numberDetails: { phoneNumber: '+44 115 661 2336', smsEnabled: true, voiceEnabled: true, status: 'ACTIVE' } },
+        ]);
+        setWallet({ balance: 5.00, currency: 'GBP' });
+        setVpnNodes([{ id: 'demo-au', name: 'australia-sydney-1', country: 'Australia', countryCode: 'AU', city: 'Sydney', status: 'ONLINE', load: 12 }]);
+      } else {
+        loadServices(sessionToken, codeHash);
+        loadVpnNodes(sessionToken, codeHash);
+      }
+    }
   }, []);
 
   useEffect(() => { if (view === 'login' && inputRef.current) { inputRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' }); inputRef.current.focus({ preventScroll: true }); } }, [view]);
 
-  // Scroll to top when switching tabs
-  useEffect(() => { window.scrollTo(0, 0); }, [activeTab]);
+  // Scroll to top when switching tabs (delayed for mobile rendering)
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    setTimeout(() => window.scrollTo(0, 0), 50);
+    setTimeout(() => window.scrollTo(0, 0), 150);
+  }, [activeTab]);
 
   // PWA Back button navigation
   useEffect(() => {
+    // Push initial state to prevent back from exiting
+    window.history.pushState({ page: 'dashboard' }, '', window.location.href);
+
     const handlePopState = () => {
       if (activeTab !== 'dashboard') {
         setActiveTab('dashboard');
+        window.history.pushState({ page: 'dashboard' }, '', window.location.href);
       } else {
+        // Stay on dashboard, push state again to prevent exit
         window.history.pushState({ page: 'dashboard' }, '', window.location.href);
       }
     };
