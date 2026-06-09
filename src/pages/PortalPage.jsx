@@ -3,13 +3,10 @@ import { Helmet } from 'react-helmet';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Lock, ArrowRight, Smartphone, Tv, Gamepad2, Laptop, Shield, Phone, LogOut, RefreshCw, AlertTriangle, Download, Zap, MessageCircle, Globe, Tablet, Clock, Mail, PhoneCall, Users, Loader2 } from 'lucide-react';
+import { Lock, ArrowRight, Smartphone, Tv, Gamepad2, Laptop, Shield, Phone, LogOut, RefreshCw, AlertTriangle, Download, Zap, MessageCircle, Globe, Tablet, Clock, Mail, PhoneCall } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import MessagingPanel from '@/components/MessagingPanel';
 import CallPanel from '@/components/CallPanel';
-import BurnerRoomsPanel from '@/components/BurnerRoomsPanel';
-import { EsimSetupGuide, VpnSetupGuide } from '@/components/SetupGuide';
-import ContactsPanel from '@/components/ContactsPanel';
 
 const API_BASE = 'https://api.phantompathvpn.com/api';
 const FLAGS = { AU: '🇦🇺', GB: '🇬🇧', US: '🇺🇸', DE: '🇩🇪', CA: '🇨🇦', JP: '🇯🇵', NL: '🇳🇱', SG: '🇸🇬', FR: '🇫🇷', AE: '🇦🇪', IN: '🇮🇳', IE: '🇮🇪' };
@@ -33,7 +30,7 @@ const PortalPage = () => {
   const { toast } = useToast();
   const inputRef = useRef(null);
 
-  // Persist session across page refresh
+  // Persist session
   useEffect(() => {
     if (sessionToken) { localStorage.setItem('pp_token', sessionToken); localStorage.setItem('pp_hash', codeHash); localStorage.setItem('pp_expires', expiresAt); }
   }, [sessionToken, codeHash, expiresAt]);
@@ -42,7 +39,6 @@ const PortalPage = () => {
   useEffect(() => {
     if (sessionToken && view === 'dashboard') {
       if (sessionToken === 'demo-token') {
-        // Restore demo data
         const d = new Date(); d.setDate(d.getDate() + 30);
         setExpiresAt(d.toISOString());
         setServices([
@@ -61,24 +57,21 @@ const PortalPage = () => {
 
   useEffect(() => { if (view === 'login' && inputRef.current) { inputRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' }); inputRef.current.focus({ preventScroll: true }); } }, [view]);
 
-  // Scroll to top when switching tabs (delayed for mobile rendering)
+  // Scroll to top when switching tabs
   useEffect(() => {
     window.scrollTo(0, 0);
-    setTimeout(() => window.scrollTo(0, 0), 50);
-    setTimeout(() => window.scrollTo(0, 0), 150);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
   }, [activeTab]);
 
   // PWA Back button navigation
   useEffect(() => {
-    // Push initial state to prevent back from exiting
     window.history.pushState({ page: 'dashboard' }, '', window.location.href);
-
     const handlePopState = () => {
       if (activeTab !== 'dashboard') {
         setActiveTab('dashboard');
         window.history.pushState({ page: 'dashboard' }, '', window.location.href);
       } else {
-        // Stay on dashboard, push state again to prevent exit
         window.history.pushState({ page: 'dashboard' }, '', window.location.href);
       }
     };
@@ -86,18 +79,13 @@ const PortalPage = () => {
     return () => window.removeEventListener('popstate', handlePopState);
   }, [activeTab, view]);
 
-  // Push history state when navigating to messages/calls
+  // Navigate to tab with scroll reset
   const navigateToTab = (tab) => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    window.scrollTo(0, 0);
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
     window.history.pushState({ tab }, '', window.location.href);
     setActiveTab(tab);
-    requestAnimationFrame(() => {
-      window.scrollTo(0, 0);
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
-    });
   };
 
   const hdrs = (t, h) => ({ 'x-session-token': t || sessionToken, 'x-code-hash': h || codeHash });
@@ -135,32 +123,14 @@ const PortalPage = () => {
     try { const res = await fetch(`${API_BASE}/portal/confirm-switch`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: switchCode }) }); const data = await res.json(); if (data.token) { setSessionToken(data.token); setCodeHash(data.codeHash); setExpiresAt(data.accessCodeExpiresAt); setView('dashboard'); loadServices(data.token, data.codeHash); loadVpnNodes(data.token, data.codeHash); toast({ title: 'Device Switched' }); } } catch (err) { setView('login'); }
   };
 
-  const loadServices = async (t, h) => {
-    setServicesLoading(true); setServicesError('');
-    try {
-      const res = await fetch(`${API_BASE}/portal/services`, { headers: hdrs(t, h) });
-      if (res.status === 401) { handleLogout(); toast({ title: 'Session Expired', description: 'Please log in again.', variant: 'destructive' }); return; }
-      const data = await res.json();
-      if (data.services) setServices(data.services);
-      if (data.wallet) setWallet(data.wallet);
-    } catch (err) { setServicesError('Unable to load services. Check your connection.'); }
-    setServicesLoading(false);
-  };
-  const loadVpnNodes = async (t, h) => { try { const res = await fetch(`${API_BASE}/portal/vpn-nodes`, { headers: hdrs(t, h) }); if (res.ok) { const data = await res.json(); if (data.nodes) setVpnNodes(data.nodes); } } catch (err) {} };
+  const loadServices = async (t, h) => { try { const res = await fetch(`${API_BASE}/portal/services`, { headers: hdrs(t, h) }); const data = await res.json(); if (data.services) setServices(data.services); if (data.wallet) setWallet(data.wallet); } catch (err) {} };
+  const loadVpnNodes = async (t, h) => { try { const res = await fetch(`${API_BASE}/portal/vpn-nodes`, { headers: hdrs(t, h) }); const data = await res.json(); if (data.nodes) setVpnNodes(data.nodes); } catch (err) {} };
   const switchVpnNode = async (sid, nid, country) => { toast({ title: 'Switching...', description: `Connecting to ${country}...` }); try { const res = await fetch(`${API_BASE}/portal/vpn-switch`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...hdrs() }, body: JSON.stringify({ serviceId: sid, targetNodeId: nid }) }); const data = await res.json(); if (data.success) { toast({ title: 'Server Switched' }); loadServices(sessionToken, codeHash); } } catch (err) {} };
   const downloadVpnConfig = async (sid) => { try { const res = await fetch(`${API_BASE}/portal/vpn-config/${sid}`, { headers: hdrs() }); if (!res.ok) throw new Error(); const blob = await res.blob(); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'phantompath.conf'; a.click(); URL.revokeObjectURL(a.href); toast({ title: 'Config Downloaded' }); } catch (err) { toast({ title: 'Not Available', variant: 'destructive' }); } };
   const handleLogout = () => { localStorage.removeItem('pp_token'); localStorage.removeItem('pp_hash'); localStorage.removeItem('pp_expires'); setSessionToken(''); setCodeHash(''); setServices([]); setWallet({ balance: 0, currency: 'GBP' }); setVpnNodes([]); setAccessCode(''); setError(''); setActiveTab('dashboard'); setView('login'); };
 
   const schemaPortal = { '@context': 'https://schema.org', '@type': 'WebPage', 'name': 'PhantomPath Portal', 'url': 'https://phantompathvpn.com/portal' };
   const daysLeft = expiresAt ? Math.max(0, Math.ceil((new Date(expiresAt) - new Date()) / 86400000)) : 0;
-  const isSessionExpired = expiresAt && new Date(expiresAt) < new Date();
-  const isServiceExpired = (s) => s?.expiresAt && new Date(s.expiresAt) < new Date();
-  const getStatusBadge = (s) => {
-    if (isServiceExpired(s)) return { text: 'EXPIRED', cls: 'text-red-400 bg-red-400/10 border-red-400/20' };
-    if (s?.status === 'ACTIVE') return { text: 'ACTIVE', cls: 'text-[#3affc2] bg-[#3affc2]/10 border-[#3affc2]/20' };
-    if (s?.status === 'PENDING') return { text: 'PENDING', cls: 'text-[#f59e0b] bg-[#f59e0b]/10 border-[#f59e0b]/20' };
-    return { text: s?.status || 'UNKNOWN', cls: 'text-gray-500 bg-gray-500/10 border-gray-500/20' };
-  };
   const msgCost = 0.05;
   const minCost = 0.10;
   const messagesRemaining = Math.floor(wallet.balance / msgCost);
@@ -211,19 +181,19 @@ const PortalPage = () => {
   const vnumService = services.find((s) => s.type === 'VIRTUAL_NUMBER');
 
   if (activeTab === 'messages' && vnumService && vnumService.numberDetails) return (
-    <div className="h-screen bg-[#050b14] flex flex-col pt-16"><Helmet><title>PhantomPath | Messages</title></Helmet><div className="flex-1 flex flex-col min-h-0"><MessagingPanel sessionToken={sessionToken} codeHash={codeHash} virtualNumber={vnumService.numberDetails.phoneNumber} virtualNumberId={vnumService.id} accessCodeId={codeHash} onClose={() => setActiveTab('dashboard')} /></div></div>
+    <div className="fixed inset-0 z-50 bg-[#050b14] flex flex-col pt-16"><Helmet><title>PhantomPath | Messages</title></Helmet><div className="flex-1 flex flex-col min-h-0"><MessagingPanel sessionToken={sessionToken} codeHash={codeHash} virtualNumber={vnumService.numberDetails.phoneNumber} virtualNumberId={vnumService.id} onClose={() => setActiveTab('dashboard')} /></div></div>
   );
 
   if (activeTab === 'calls' && vnumService && vnumService.numberDetails) return (
-    <div className="h-screen bg-[#050b14] flex flex-col pt-16"><Helmet><title>PhantomPath | Calls</title></Helmet><div className="flex-1 flex flex-col min-h-0"><CallPanel sessionToken={sessionToken} codeHash={codeHash} virtualNumber={vnumService.numberDetails.phoneNumber} virtualNumberId={vnumService.id} onClose={() => setActiveTab('dashboard')} /></div></div>
+    <div className="fixed inset-0 z-50 bg-[#050b14] flex flex-col pt-16"><Helmet><title>PhantomPath | Calls</title></Helmet><div className="flex-1 flex flex-col min-h-0"><CallPanel sessionToken={sessionToken} codeHash={codeHash} virtualNumber={vnumService.numberDetails.phoneNumber} virtualNumberId={vnumService.id} onClose={() => setActiveTab('dashboard')} /></div></div>
   );
 
   if (activeTab === 'rooms') return (
-    <div className="h-screen bg-[#050b14] flex flex-col pt-16"><Helmet><title>PhantomPath | Burner Rooms</title></Helmet><div className="flex-1 flex flex-col min-h-0"><BurnerRoomsPanel sessionToken={sessionToken} codeHash={codeHash} onClose={() => setActiveTab('dashboard')} /></div></div>
+    <div className="fixed inset-0 z-50 bg-[#050b14] flex flex-col pt-16"><Helmet><title>PhantomPath | Group Chat</title></Helmet><div className="flex-1 flex flex-col min-h-0"><BurnerRoomsPanel sessionToken={sessionToken} codeHash={codeHash} onClose={() => setActiveTab('dashboard')} /></div></div>
   );
 
   if (activeTab === 'contacts') return (
-    <div className="h-screen bg-[#050b14] flex flex-col pt-16"><Helmet><title>PhantomPath | Contacts</title></Helmet><div className="flex-1 flex flex-col min-h-0"><ContactsPanel sessionToken={sessionToken} codeHash={codeHash} onClose={() => setActiveTab('dashboard')} /></div></div>
+    <div className="fixed inset-0 z-50 bg-[#050b14] flex flex-col pt-16"><Helmet><title>PhantomPath | Contacts</title></Helmet><div className="flex-1 flex flex-col min-h-0"><ContactsPanel sessionToken={sessionToken} codeHash={codeHash} onClose={() => setActiveTab('dashboard')} /></div></div>
   );
 
   return (
@@ -234,50 +204,35 @@ const PortalPage = () => {
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-3">
             <div className="w-2.5 h-2.5 rounded-full bg-[#3affc2] shadow-[0_0_10px_rgba(58,255,194,0.6)] animate-pulse" />
-            <div><h1 className="text-[#3affc2] font-bold text-lg tracking-tight leading-none" style={mono}>PHANTOMPATH</h1><p className={`text-[11px] mt-0.5 ${isSessionExpired ? "text-red-400" : daysLeft <= 3 ? "text-[#f59e0b]" : "text-gray-600"}`} style={mono}>{isSessionExpired ? "Session expired" : `Secure · ${daysLeft} days remaining · 1 device`}</p></div>
+            <div><h1 className="text-[#3affc2] font-bold text-lg tracking-tight leading-none" style={mono}>PHANTOMPATH</h1><p className="text-gray-600 text-[11px] mt-0.5" style={mono}>Secure · {daysLeft} days remaining · 1 device</p></div>
           </div>
           <button onClick={handleLogout} className="h-8 px-3 rounded-lg border border-white/10 text-gray-500 hover:text-white hover:border-red-500/30 text-xs flex items-center gap-1.5 transition-all" style={mono}><LogOut className="w-3.5 h-3.5" />Exit</button>
         </motion.div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Session Status — Top Left */}
+          <div className="space-y-4">
+            {/* Session Status */}
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="bg-[#0a1120] border border-white/5 rounded-2xl p-5">
               <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-xl bg-[#3affc2]/10 border border-[#3affc2]/20 flex items-center justify-center"><Clock className="w-4.5 h-4.5 text-[#3affc2]" /></div><div><h3 className="text-white font-semibold text-sm">Session Status</h3><p className="text-white/70 text-[10px]">Active Pass</p></div></div>
-                <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border ${isSessionExpired ? 'text-red-400 bg-red-400/10 border-red-400/20' : 'text-[#3affc2] bg-[#3affc2]/10 border-[#3affc2]/20'}`} style={mono}>{isSessionExpired ? 'EXPIRED' : 'ACTIVE'}</span>
+                <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-xl bg-[#3affc2]/10 border border-[#3affc2]/20 flex items-center justify-center"><Clock className="w-4.5 h-4.5 text-[#3affc2]" /></div><div><h3 className="text-white font-semibold text-sm">Session Status</h3><p className="text-gray-600 text-[10px]">Active Pass</p></div></div>
+                <span className="text-[10px] font-bold text-[#3affc2] bg-[#3affc2]/10 border border-[#3affc2]/20 px-2.5 py-1 rounded-lg" style={mono}>ACTIVE</span>
               </div>
               <div className="bg-[#050b14] rounded-xl p-4 grid grid-cols-3 gap-3 mb-4">
-                <div className="text-center"><p className="text-white/60 text-[8px] uppercase tracking-widest mb-1.5" style={mono}>Expires In</p><p className="text-[#3affc2] text-2xl font-bold" style={mono}>{daysLeft}</p><p className="text-white/50 text-[9px]" style={mono}>days</p></div>
-                <div className="text-center border-x border-white/5"><p className="text-white/60 text-[8px] uppercase tracking-widest mb-1.5" style={mono}>Messages</p><p className="text-amber-400 text-2xl font-bold" style={mono}>{messagesRemaining}</p><p className="text-white/50 text-[9px]" style={mono}>remaining</p></div>
-                <div className="text-center"><p className="text-white/60 text-[8px] uppercase tracking-widest mb-1.5" style={mono}>Minutes</p><p className="text-purple-400 text-2xl font-bold" style={mono}>{minutesRemaining}</p><p className="text-white/50 text-[9px]" style={mono}>remaining</p></div>
+                <div className="text-center"><p className="text-gray-600 text-[8px] uppercase tracking-widest mb-1.5" style={mono}>Expires In</p><p className="text-[#3affc2] text-2xl font-bold" style={mono}>{daysLeft}</p><p className="text-gray-600 text-[9px]" style={mono}>days</p></div>
+                <div className="text-center border-x border-white/5"><p className="text-gray-600 text-[8px] uppercase tracking-widest mb-1.5" style={mono}>Messages</p><p className="text-amber-400 text-2xl font-bold" style={mono}>{messagesRemaining}</p><p className="text-gray-600 text-[9px]" style={mono}>remaining</p></div>
+                <div className="text-center"><p className="text-gray-600 text-[8px] uppercase tracking-widest mb-1.5" style={mono}>Minutes</p><p className="text-purple-400 text-2xl font-bold" style={mono}>{minutesRemaining}</p><p className="text-gray-600 text-[9px]" style={mono}>remaining</p></div>
               </div>
               <div className="grid grid-cols-3 gap-2">
-                <button onClick={comingSoon} className="h-9 bg-[#FFE600]/10 border border-[#FFE600]/30 text-[#FFE600] hover:bg-[#FFE600]/20 hover:border-[#FFE600]/50 hover:shadow-[0_0_20px_rgba(250,204,21,0.2)] active:scale-95 text-[10px] rounded-xl flex items-center justify-center gap-1 transition-all" style={mono}><Mail className="w-3 h-3" />Add Msgs</button>
-                <button onClick={comingSoon} className="h-9 bg-[#FFE600]/10 border border-[#FFE600]/30 text-[#FFE600] hover:bg-[#FFE600]/20 hover:border-[#FFE600]/50 hover:shadow-[0_0_20px_rgba(250,204,21,0.2)] active:scale-95 text-[10px] rounded-xl flex items-center justify-center gap-1 transition-all" style={mono}><PhoneCall className="w-3 h-3" />Add Mins</button>
+                <button onClick={comingSoon} className="h-9 bg-[#f59e0b]/10 border border-[#f59e0b]/30 text-[#f59e0b] hover:bg-[#f59e0b]/20 hover:border-[#f59e0b]/50 hover:shadow-[0_0_20px_rgba(245,158,11,0.15)] active:scale-95 text-[10px] rounded-xl flex items-center justify-center gap-1 transition-all" style={mono}><Mail className="w-3 h-3" />Add Msgs</button>
+                <button onClick={comingSoon} className="h-9 bg-[#f59e0b]/10 border border-[#f59e0b]/30 text-[#f59e0b] hover:bg-[#f59e0b]/20 hover:border-[#f59e0b]/50 hover:shadow-[0_0_20px_rgba(245,158,11,0.15)] active:scale-95 text-[10px] rounded-xl flex items-center justify-center gap-1 transition-all" style={mono}><PhoneCall className="w-3 h-3" />Add Mins</button>
                 <button onClick={comingSoon} className="h-9 bg-[#3affc2]/15 border border-[#3affc2]/30 text-[#3affc2] hover:bg-[#3affc2]/25 hover:border-[#3affc2]/50 hover:shadow-[0_0_20px_rgba(58,255,194,0.2)] active:scale-95 text-[10px] rounded-xl flex items-center justify-center gap-1 transition-all animate-pulse" style={mono}><Zap className="w-3 h-3" />Extend</button>
               </div>
             </motion.div>
-            {/* VPN Service — Bottom Left */}
-            {vpnService && (
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="order-3 bg-[#0a1120] border border-white/5 rounded-2xl p-5">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-xl bg-[#3affc2]/10 border border-[#3affc2]/20 flex items-center justify-center"><Shield className="w-4.5 h-4.5 text-[#3affc2]" /></div><div><h3 className="text-white font-semibold text-sm">VPN Service</h3><p className="text-white/70 text-[10px]">WireGuard Encrypted Tunnel</p></div></div>
-                  <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border ${getStatusBadge(vpnService).cls}`} style={mono}>{getStatusBadge(vpnService).text}</span>
-                </div>
-                {vpnService.status === 'ACTIVE' ? (
-                  <div className="space-y-3">
-                    <button onClick={() => downloadVpnConfig(vpnService.id)} className="w-full h-10 bg-[#3affc2]/10 border border-[#3affc2]/15 text-[#3affc2] hover:bg-[#3affc2]/20 text-xs rounded-xl flex items-center justify-center gap-2 transition-all" style={mono}><Download className="w-4 h-4" />Download Config (.conf)</button>
-                    <button onClick={() => setShowVpnGuide(true)} className="w-full h-9 bg-[#050b14] border border-white/10 text-[#FFE600] hover:text-[#FFE600] hover:border-[#FFE600]/30 hover:shadow-[0_0_15px_rgba(255,230,0,0.15)] text-[10px] rounded-xl flex items-center justify-center gap-1.5 transition-all active:scale-95" style={mono}><Shield className="w-3 h-3" />Setup Guide</button>
-                    {vpnNodes.length > 0 && (<div><p className="text-white/60 text-[10px] mb-2 uppercase tracking-widest" style={mono}>Switch Server</p><div className="grid grid-cols-2 gap-2">{vpnNodes.map((n) => (<button key={n.id} onClick={() => switchVpnNode(vpnService.id, n.id, n.country)} className="bg-[#050b14] border border-white/5 rounded-xl py-2.5 px-3 hover:border-[#3affc2]/30 hover:bg-[#3affc2]/5 transition-all flex items-center gap-2.5"><span className="text-xl">{FLAGS[n.countryCode] || '🌍'}</span><div className="text-left"><span className="text-white text-xs font-medium block">{n.country}</span><span className="text-gray-600 text-[10px]">{n.city}</span></div></button>))}</div></div>)}
-                  </div>
-                ) : (<div className="bg-[#050b14] border border-dashed border-white/10 rounded-xl p-5 text-center"><p className="text-gray-600 text-xs" style={mono}>Provisioning...</p></div>)}
-              </motion.div>
-            )}
-            {/* Virtual Number — Top Right */}
+            {/* Virtual Number */}
             {vnumService && (
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="order-2 bg-[#0a1120] border border-white/5 rounded-2xl p-5">
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-[#0a1120] border border-white/5 rounded-2xl p-5">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center"><Phone className="w-4.5 h-4.5 text-amber-400" /></div><div><h3 className="text-white font-semibold text-sm">Virtual Number</h3><p className="text-white/70 text-[10px]">Private communication line</p></div></div>
-                  <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border ${getStatusBadge(vnumService).cls}`} style={mono}>{getStatusBadge(vnumService).text}</span>
+                  <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center"><Phone className="w-4.5 h-4.5 text-amber-400" /></div><div><h3 className="text-white font-semibold text-sm">Virtual Number</h3><p className="text-gray-600 text-[10px]">Private communication line</p></div></div>
+                  <span className="text-[10px] font-bold text-[#3affc2] bg-[#3affc2]/10 border border-[#3affc2]/20 px-2.5 py-1 rounded-lg" style={mono}>{vnumService.status}</span>
                 </div>
                 {vnumService.numberDetails ? (
                   <div className="space-y-3">
@@ -288,68 +243,61 @@ const PortalPage = () => {
                         <div className="bg-[#0a1120] rounded-lg px-3 py-2 text-center border border-white/5"><p className="text-gray-600 text-[8px] uppercase" style={mono}>Voice</p><p className={`text-xs font-bold ${vnumService.numberDetails.voiceEnabled ? 'text-[#3affc2]' : 'text-gray-600'}`} style={mono}>{vnumService.numberDetails.voiceEnabled ? 'ON' : 'OFF'}</p></div>
                       </div>
                     </div>
-                    <p className="text-white/70 text-[10px] text-center" style={mono}>Your number is ready. No setup required.</p>
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-2 gap-2">
                       <button onClick={() => navigateToTab('messages')} className="h-10 bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 active:scale-95 text-[11px] rounded-xl flex items-center justify-center gap-1.5 transition-all" style={mono}><MessageCircle className="w-3.5 h-3.5" />Messages</button>
                       <button onClick={() => navigateToTab('calls')} className="h-10 bg-[#3affc2]/10 border border-[#3affc2]/20 text-[#3affc2] hover:bg-[#3affc2]/20 active:scale-95 text-[11px] rounded-xl flex items-center justify-center gap-1.5 transition-all" style={mono}><Phone className="w-3.5 h-3.5" />Calls</button>
-                      <button onClick={() => navigateToTab('rooms')} className="h-10 bg-[#6B5CE7]/10 border border-[#6B5CE7]/20 text-[#6B5CE7] hover:bg-[#6B5CE7]/20 active:scale-95 text-[11px] rounded-xl flex items-center justify-center gap-1.5 transition-all" style={mono}><Users className="w-3.5 h-3.5" />Rooms</button>
                     </div>
-                    <button onClick={() => navigateToTab('contacts')} className="w-full h-9 bg-[#050b14] border border-white/10 text-gray-400 hover:text-amber-400 hover:border-amber-400/20 text-[10px] rounded-xl flex items-center justify-center gap-1.5 transition-all active:scale-95" style={mono}><Users className="w-3 h-3" />Contacts</button>
                   </div>
                 ) : (<div className="bg-[#050b14] border border-dashed border-white/10 rounded-xl p-5 text-center"><p className="text-gray-600 text-xs" style={mono}>Provisioning...</p></div>)}
               </motion.div>
             )}
-            {/* eSIM Data — Bottom Right */}
-            {esimService && (
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="order-4 bg-[#0a1120] border border-white/5 rounded-2xl p-5">
+          </div>
+          <div className="space-y-4">
+            {/* VPN */}
+            {vpnService && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="bg-[#0a1120] border border-white/5 rounded-2xl p-5">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center"><Smartphone className="w-4.5 h-4.5 text-blue-400" /></div><div><h3 className="text-white font-semibold text-sm">eSIM Data</h3><p className="text-white/70 text-[10px]">Mobile data via eSIM</p></div></div>
-                  <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border ${getStatusBadge(esimService).cls}`} style={mono}>{getStatusBadge(esimService).text}</span>
+                  <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-xl bg-[#3affc2]/10 border border-[#3affc2]/20 flex items-center justify-center"><Shield className="w-4.5 h-4.5 text-[#3affc2]" /></div><div><h3 className="text-white font-semibold text-sm">VPN Service</h3><p className="text-gray-600 text-[10px]">WireGuard Encrypted Tunnel</p></div></div>
+                  <span className="text-[10px] font-bold text-[#3affc2] bg-[#3affc2]/10 border border-[#3affc2]/20 px-2.5 py-1 rounded-lg" style={mono}>{vpnService.status}</span>
+                </div>
+                {vpnService.status === 'ACTIVE' ? (
+                  <div className="space-y-3">
+                    <button onClick={() => downloadVpnConfig(vpnService.id)} className="w-full h-10 bg-[#3affc2]/10 border border-[#3affc2]/15 text-[#3affc2] hover:bg-[#3affc2]/20 text-xs rounded-xl flex items-center justify-center gap-2 transition-all" style={mono}><Download className="w-4 h-4" />Download Config (.conf)</button>
+                    {vpnNodes.length > 0 && (<div><p className="text-gray-600 text-[10px] mb-2 uppercase tracking-widest" style={mono}>Switch Server</p><div className="grid grid-cols-2 gap-2">{vpnNodes.map((n) => (<button key={n.id} onClick={() => switchVpnNode(vpnService.id, n.id, n.country)} className="bg-[#050b14] border border-white/5 rounded-xl py-2.5 px-3 hover:border-[#3affc2]/30 hover:bg-[#3affc2]/5 transition-all flex items-center gap-2.5"><span className="text-xl">{FLAGS[n.countryCode] || '🌍'}</span><div className="text-left"><span className="text-white text-xs font-medium block">{n.country}</span><span className="text-gray-600 text-[10px]">{n.city}</span></div></button>))}</div></div>)}
+                  </div>
+                ) : (<div className="bg-[#050b14] border border-dashed border-white/10 rounded-xl p-5 text-center"><p className="text-gray-600 text-xs" style={mono}>Provisioning...</p></div>)}
+              </motion.div>
+            )}
+            {/* eSIM */}
+            {esimService && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-[#0a1120] border border-white/5 rounded-2xl p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3"><div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center"><Smartphone className="w-4.5 h-4.5 text-blue-400" /></div><div><h3 className="text-white font-semibold text-sm">eSIM Data</h3><p className="text-gray-600 text-[10px]">Mobile data via eSIM</p></div></div>
+                  <span className="text-[10px] font-bold text-[#3affc2] bg-[#3affc2]/10 border border-[#3affc2]/20 px-2.5 py-1 rounded-lg" style={mono}>{esimService.status}</span>
                 </div>
                 {esimService.esimDetails ? (
                   <div className="space-y-3">
                     {esimService.esimDetails.qrData ? (
                       <div className="flex items-center gap-4"><div className="bg-white rounded-xl p-2.5 shadow-lg"><img src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(esimService.esimDetails.qrData)}`} alt="eSIM QR" className="w-28 h-28" /></div><div className="flex-1"><p className="text-gray-500 text-[11px] leading-relaxed">Scan this QR code in <span className="text-white">Settings → Cellular → Add eSIM</span> to install your data plan.</p><p className="text-[10px] text-gray-600 mt-2" style={mono}>ICCID: <span className="text-blue-400">{esimService.esimDetails.iccid || '...'}</span></p></div></div>
                     ) : (
-                      <div className="bg-[#050b14] border border-dashed border-white/10 rounded-xl p-5 text-center"><p className="text-white/70 text-sm mb-1" style={mono}>QR pending activation</p><p className="text-[10px] text-gray-600" style={mono}>ICCID: <span className="text-blue-400">{esimService.esimDetails.iccid || '...'}</span></p></div>
+                      <div className="bg-[#050b14] border border-dashed border-white/10 rounded-xl p-5 text-center"><p className="text-gray-500 text-sm mb-1" style={mono}>QR pending activation</p><p className="text-[10px] text-gray-600" style={mono}>ICCID: <span className="text-blue-400">{esimService.esimDetails.iccid || '...'}</span></p></div>
                     )}
-                    <button onClick={() => setShowEsimGuide(true)} className="w-full h-9 bg-[#050b14] border border-white/10 text-[#FFE600] hover:text-[#FFE600] hover:border-[#FFE600]/30 hover:shadow-[0_0_15px_rgba(255,230,0,0.15)] text-[10px] rounded-xl flex items-center justify-center gap-1.5 transition-all active:scale-95" style={mono}><Smartphone className="w-3 h-3" />Setup Guide</button>
                   </div>
                 ) : (<div className="bg-[#050b14] border border-dashed border-white/10 rounded-xl p-5 text-center"><p className="text-gray-600 text-xs" style={mono}>Provisioning...</p></div>)}
               </motion.div>
             )}
+          </div>
         </div>
-        {/* Loading State */}
-        {servicesLoading && services.length === 0 && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-[#0a1120] border border-white/5 rounded-2xl p-8 text-center mt-4">
-            <Loader2 className="w-6 h-6 text-[#3affc2] animate-spin mx-auto mb-3" />
-            <p className="text-gray-600 text-sm" style={mono}>Loading services...</p>
-          </motion.div>
-        )}
-
-        {/* Error State */}
-        {servicesError && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-[#0a1120] border border-red-500/20 rounded-2xl p-6 text-center mt-4">
-            <AlertTriangle className="w-6 h-6 text-red-400 mx-auto mb-3" />
-            <p className="text-red-400 text-sm mb-1" style={mono}>Connection Error</p>
-            <p className="text-gray-600 text-xs mb-3">{servicesError}</p>
-            <Button onClick={() => loadServices(sessionToken, codeHash)} variant="outline" size="sm" className="border-red-500/20 text-red-400 h-8 text-xs hover:bg-red-500/10 active:scale-95"><RefreshCw className="w-3 h-3 mr-1" />Retry</Button>
-          </motion.div>
-        )}
-
-        {/* Empty State (no error, not loading, but no services) */}
-        {!servicesLoading && !servicesError && services.length === 0 && (
+        {services.length === 0 && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-[#0a1120] border border-white/5 rounded-2xl p-8 text-center mt-4">
             <p className="text-gray-600 text-sm mb-2" style={mono}>Provisioning services...</p>
-            <Button onClick={() => loadServices(sessionToken, codeHash)} variant="outline" size="sm" className="border-white/10 text-gray-500 h-7 text-xs active:scale-95"><RefreshCw className="w-3 h-3 mr-1" />Refresh</Button>
+            <Button onClick={() => loadServices(sessionToken, codeHash)} variant="outline" size="sm" className="border-white/10 text-gray-500 h-7 text-xs"><RefreshCw className="w-3 h-3 mr-1" />Refresh</Button>
           </motion.div>
         )}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }} className="text-center mt-6">
           <p className="text-gray-800 text-[9px] tracking-widest" style={mono}>ENCRYPTED · WIREGUARD · EPHEMERAL</p>
         </motion.div>
       </div>
-      <EsimSetupGuide isOpen={showEsimGuide} onClose={() => setShowEsimGuide(false)} />
-      <VpnSetupGuide isOpen={showVpnGuide} onClose={() => setShowVpnGuide(false)} />
     </div>
   );
 };
