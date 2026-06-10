@@ -84,6 +84,8 @@ const PortalPage = () => {
 
   // Navigate to tab with scroll reset
   const navigateToTab = (tab) => {
+    const root = document.getElementById('root');
+    if (root) root.scrollTop = 0;
     window.scrollTo(0, 0);
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
@@ -204,7 +206,7 @@ const PortalPage = () => {
   );
 
   if (activeTab === 'contacts') return (
-    <div className="fixed inset-0 z-50 bg-[#050b14] flex flex-col pt-16"><Helmet><title>PhantomPath | Contacts</title></Helmet><div className="flex-1 flex flex-col min-h-0"><ContactsPanel sessionToken={sessionToken} codeHash={codeHash} onClose={() => setActiveTab('dashboard')} /></div></div>
+    <div className="fixed inset-0 z-50 bg-[#050b14] flex flex-col pt-16"><Helmet><title>PhantomPath | Contacts</title></Helmet><div className="flex-1 flex flex-col min-h-0"><ContactsPanel sessionToken={sessionToken} codeHash={codeHash} onClose={() => setActiveTab('dashboard')} onMessage={(num) => { setActiveTab('messages'); }} onCall={(num) => { setActiveTab('calls'); }} /></div></div>
   );
 
   return (

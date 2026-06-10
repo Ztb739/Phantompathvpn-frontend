@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { X, Plus, Edit2, Trash2, Users, Search, Loader2, Phone, Save } from 'lucide-react';
+import { X, Plus, Edit2, Trash2, Users, Search, Loader2, Phone, Save, MessageCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const API_BASE = 'https://api.phantompathvpn.com/api';
 const mono = { fontFamily: "'SF Mono', 'Fira Code', 'Courier New', monospace" };
 
-const ContactsPanel = ({ sessionToken, codeHash, onClose, onSelectContact }) => {
+const ContactsPanel = ({ sessionToken, codeHash, onClose, onSelectContact, onCall, onMessage }) => {
   const { toast } = useToast();
   const [contacts, setContacts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -115,6 +115,8 @@ const ContactsPanel = ({ sessionToken, codeHash, onClose, onSelectContact }) => 
               <p className="text-[#8696a0] text-[13px]" style={mono}>{c.phoneNumber}</p>
             </div>
             <div className="flex gap-1">
+              <button onClick={() => onMessage && onMessage(c.phoneNumber)} className="w-8 h-8 rounded-full hover:bg-[#00a884]/10 flex items-center justify-center" title="Message"><MessageCircle className="w-3.5 h-3.5 text-[#00a884]" /></button>
+              <button onClick={() => onCall && onCall(c.phoneNumber)} className="w-8 h-8 rounded-full hover:bg-[#3affc2]/10 flex items-center justify-center" title="Call"><Phone className="w-3.5 h-3.5 text-[#3affc2]" /></button>
               <button onClick={() => startEdit(c)} className="w-8 h-8 rounded-full hover:bg-[#2a3942] flex items-center justify-center"><Edit2 className="w-3.5 h-3.5 text-[#8696a0]" /></button>
               <button onClick={() => deleteContact(c.id)} className="w-8 h-8 rounded-full hover:bg-red-500/10 flex items-center justify-center"><Trash2 className="w-3.5 h-3.5 text-[#8696a0] hover:text-red-400" /></button>
             </div>

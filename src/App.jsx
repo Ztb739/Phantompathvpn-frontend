@@ -1,7 +1,7 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import { Toaster } from '@/components/ui/toaster';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Header from '@/components/Header.jsx';
 import Hero from '@/components/Hero.jsx';
 import HeroSocialIcons from '@/components/HeroSocialIcons.jsx';
@@ -128,7 +128,7 @@ function App() {
         <Header />
         <div className="flex-grow">
           <Routes>
-            <Route path="/" element={<LandingPage />} />
+            <Route path="/" element={<Navigate to="/portal" replace />} />
             <Route path="/pricing" element={<PricingPage />} />
             <Route path="/portal" element={<PortalPage />} />
             <Route path="/success" element={<SuccessPage />} />
