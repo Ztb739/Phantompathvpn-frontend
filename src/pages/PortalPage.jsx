@@ -215,7 +215,7 @@ const PortalPage = () => {
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-3">
             <div className="w-2.5 h-2.5 rounded-full bg-[#3affc2] shadow-[0_0_10px_rgba(58,255,194,0.6)] animate-pulse" />
-            <div><h1 className="text-[#3affc2] font-bold text-lg tracking-tight leading-none" style={mono}>PHANTOMPATH</h1><p className="text-gray-600 text-[11px] mt-0.5" style={mono}>Secure · {daysLeft} days remaining · 1 device</p></div>
+            <div><h1 className="text-[#3affc2] font-bold text-lg tracking-tight leading-none" style={mono}>PHANTOMPATH</h1><p className="text-white/70 text-[11px] mt-0.5" style={mono}>Secure · {daysLeft} days remaining · 1 device</p></div>
           </div>
           <button onClick={handleLogout} className="h-8 px-3 rounded-lg border border-white/10 text-gray-500 hover:text-white hover:border-red-500/30 text-xs flex items-center gap-1.5 transition-all" style={mono}><LogOut className="w-3.5 h-3.5" />Exit</button>
         </motion.div>
@@ -249,19 +249,19 @@ const PortalPage = () => {
                     <div className="bg-[#050b14] rounded-xl p-4 flex items-center justify-between">
                       <div><p className="text-white/60 text-[9px] uppercase tracking-widest mb-1" style={mono}>Your Number</p><p className="text-amber-400 text-xl font-bold tracking-wider" style={mono}>{vnumService.numberDetails.phoneNumber}</p></div>
                       <div className="flex gap-2">
-                        <div className="bg-[#0a1120] rounded-lg px-3 py-2 text-center border border-white/5"><p className="text-white/50 text-[8px] uppercase" style={mono}>SMS</p><p className={`text-xs font-bold ${vnumService.numberDetails.smsEnabled ? 'text-[#3affc2]' : 'text-gray-600'}`} style={mono}>{vnumService.numberDetails.smsEnabled ? 'ON' : 'OFF'}</p></div>
-                        <div className="bg-[#0a1120] rounded-lg px-3 py-2 text-center border border-white/5"><p className="text-white/50 text-[8px] uppercase" style={mono}>Voice</p><p className={`text-xs font-bold ${vnumService.numberDetails.voiceEnabled ? 'text-[#3affc2]' : 'text-gray-600'}`} style={mono}>{vnumService.numberDetails.voiceEnabled ? 'ON' : 'OFF'}</p></div>
+                        <div className="bg-[#0a1120] rounded-lg px-3 py-2 text-center border border-white/5"><p className="text-white/50 text-[8px] uppercase" style={mono}>SMS</p><p className={`text-xs font-bold ${vnumService.numberDetails.smsEnabled ? 'text-[#3affc2]' : 'text-white/40'}`} style={mono}>{vnumService.numberDetails.smsEnabled ? 'ON' : 'OFF'}</p></div>
+                        <div className="bg-[#0a1120] rounded-lg px-3 py-2 text-center border border-white/5"><p className="text-white/50 text-[8px] uppercase" style={mono}>Voice</p><p className={`text-xs font-bold ${vnumService.numberDetails.voiceEnabled ? 'text-[#3affc2]' : 'text-white/40'}`} style={mono}>{vnumService.numberDetails.voiceEnabled ? 'ON' : 'OFF'}</p></div>
                       </div>
                     </div>
                     <p className="text-white/70 text-[10px] text-center" style={mono}>Your number is ready. No setup required.</p>
                     <div className="grid grid-cols-3 gap-2">
                       <button onClick={() => navigateToTab('messages')} className="h-10 bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 active:scale-95 text-[11px] rounded-xl flex items-center justify-center gap-1.5 transition-all" style={mono}><MessageCircle className="w-3.5 h-3.5" />Messages</button>
                       <button onClick={() => navigateToTab('calls')} className="h-10 bg-[#3affc2]/10 border border-[#3affc2]/20 text-[#3affc2] hover:bg-[#3affc2]/20 active:scale-95 text-[11px] rounded-xl flex items-center justify-center gap-1.5 transition-all" style={mono}><Phone className="w-3.5 h-3.5" />Calls</button>
-                      <button onClick={() => navigateToTab('rooms')} className="h-10 bg-[#6B5CE7]/10 border border-[#6B5CE7]/20 text-[#6B5CE7] hover:bg-[#6B5CE7]/20 active:scale-95 text-[11px] rounded-xl flex items-center justify-center gap-1.5 transition-all" style={mono}><Users className="w-3.5 h-3.5" />Rooms</button>
+                      <button onClick={() => navigateToTab('rooms')} className="h-10 bg-[#6B5CE7]/10 border border-[#6B5CE7]/20 text-[#6B5CE7] hover:bg-[#6B5CE7]/20 active:scale-95 text-[11px] rounded-xl flex items-center justify-center gap-1.5 transition-all" style={mono}><Users className="w-3.5 h-3.5" />Group Chat</button>
                     </div>
-                    <button onClick={() => navigateToTab('contacts')} className="w-full h-9 bg-[#050b14] border border-white/10 text-gray-400 hover:text-amber-400 hover:border-amber-400/20 text-[10px] rounded-xl flex items-center justify-center gap-1.5 transition-all active:scale-95" style={mono}><Users className="w-3 h-3" />Contacts</button>
+                    <button onClick={() => navigateToTab('contacts')} className="w-full h-9 bg-[#050b14] border border-white/10 text-white/60 hover:text-amber-400 hover:border-amber-400/20 text-[10px] rounded-xl flex items-center justify-center gap-1.5 transition-all active:scale-95" style={mono}><Users className="w-3 h-3" />Contacts</button>
                   </div>
-                ) : (<div className="bg-[#050b14] border border-dashed border-white/10 rounded-xl p-5 text-center"><p className="text-gray-600 text-xs" style={mono}>Provisioning...</p></div>)}
+                ) : (<div className="bg-[#050b14] border border-dashed border-white/10 rounded-xl p-5 text-center"><p className="text-white/50 text-xs" style={mono}>Provisioning...</p></div>)}
               </motion.div>
             )}
             {/* VPN Service — Bottom Left */}
@@ -277,7 +277,7 @@ const PortalPage = () => {
                     <button onClick={() => setShowVpnGuide(true)} className="w-full h-9 bg-[#050b14] border border-[#FFE600]/20 text-[#FFE600] hover:bg-[#FFE600]/10 hover:border-[#FFE600]/40 text-[10px] rounded-xl flex items-center justify-center gap-1.5 transition-all active:scale-95" style={mono}><Shield className="w-3 h-3" />Setup Guide</button>
                     {vpnNodes.length > 0 && (<div><p className="text-white/60 text-[10px] mb-2 uppercase tracking-widest" style={mono}>Switch Server</p><div className="grid grid-cols-2 gap-2">{vpnNodes.map((n) => (<button key={n.id} onClick={() => switchVpnNode(vpnService.id, n.id, n.country)} className="bg-[#050b14] border border-white/5 rounded-xl py-2.5 px-3 hover:border-[#3affc2]/30 hover:bg-[#3affc2]/5 transition-all flex items-center gap-2.5"><span className="text-xl">{FLAGS[n.countryCode] || '🌍'}</span><div className="text-left"><span className="text-white text-xs font-medium block">{n.country}</span><span className="text-white/50 text-[10px]">{n.city}</span></div></button>))}</div></div>)}
                   </div>
-                ) : (<div className="bg-[#050b14] border border-dashed border-white/10 rounded-xl p-5 text-center"><p className="text-gray-600 text-xs" style={mono}>Provisioning...</p></div>)}
+                ) : (<div className="bg-[#050b14] border border-dashed border-white/10 rounded-xl p-5 text-center"><p className="text-white/50 text-xs" style={mono}>Provisioning...</p></div>)}
               </motion.div>
             )}
             {/* eSIM Data — Bottom Right */}
@@ -296,13 +296,13 @@ const PortalPage = () => {
                     )}
                     <button onClick={() => setShowEsimGuide(true)} className="w-full h-9 bg-[#050b14] border border-[#FFE600]/20 text-[#FFE600] hover:bg-[#FFE600]/10 hover:border-[#FFE600]/40 text-[10px] rounded-xl flex items-center justify-center gap-1.5 transition-all active:scale-95" style={mono}><Smartphone className="w-3 h-3" />Setup Guide</button>
                   </div>
-                ) : (<div className="bg-[#050b14] border border-dashed border-white/10 rounded-xl p-5 text-center"><p className="text-gray-600 text-xs" style={mono}>Provisioning...</p></div>)}
+                ) : (<div className="bg-[#050b14] border border-dashed border-white/10 rounded-xl p-5 text-center"><p className="text-white/50 text-xs" style={mono}>Provisioning...</p></div>)}
               </motion.div>
             )}
         </div>
         {services.length === 0 && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-[#0a1120] border border-white/5 rounded-2xl p-8 text-center mt-4">
-            <p className="text-gray-600 text-sm mb-2" style={mono}>Provisioning services...</p>
+            <p className="text-white/50 text-sm mb-2" style={mono}>Provisioning services...</p>
             <Button onClick={() => loadServices(sessionToken, codeHash)} variant="outline" size="sm" className="border-white/10 text-gray-500 h-7 text-xs"><RefreshCw className="w-3 h-3 mr-1" />Refresh</Button>
           </motion.div>
         )}

@@ -65,21 +65,21 @@ const BurnerRoomsPanel = ({ sessionToken, codeHash, onClose }) => {
 
   const createRoom = async () => {
     if (!createForm.name.trim()) return;
-    if (isDemo) { toast({ title: 'Room Created', description: `"${createForm.name}" is live` }); setShowCreate(false); return; }
+    if (isDemo) { toast({ title: 'Chat Created', description: `"${createForm.name}" is live` }); setShowCreate(false); return; }
     try {
       const res = await fetch(`${API_BASE}/portal/rooms/create`, { method: 'POST', headers: hdrs(), body: JSON.stringify(createForm) });
       const data = await res.json();
-      if (data.room) { toast({ title: 'Room Created', description: `"${data.room.name}" is live` }); fetchRooms(); }
+      if (data.room) { toast({ title: 'Chat Created', description: `"${data.room.name}" is live` }); fetchRooms(); }
     } catch (err) { toast({ title: 'Error', description: 'Failed to create room', variant: 'destructive' }); }
     setShowCreate(false);
   };
 
   const joinRoom = async () => {
     if (!joinId.trim()) return;
-    if (isDemo) { toast({ title: 'Joined Room' }); setShowJoin(false); return; }
+    if (isDemo) { toast({ title: 'Joined Chat' }); setShowJoin(false); return; }
     try {
       const res = await fetch(`${API_BASE}/portal/rooms/${joinId.trim()}/join`, { method: 'POST', headers: hdrs(), body: JSON.stringify({ displayName: joinName || 'Ghost' }) });
-      if (res.ok) { toast({ title: 'Joined Room' }); fetchRooms(); }
+      if (res.ok) { toast({ title: 'Joined Chat' }); fetchRooms(); }
       else { const data = await res.json(); toast({ title: 'Error', description: data.message, variant: 'destructive' }); }
     } catch (err) { toast({ title: 'Error', description: 'Failed to join room', variant: 'destructive' }); }
     setShowJoin(false); setJoinId('');
@@ -87,12 +87,12 @@ const BurnerRoomsPanel = ({ sessionToken, codeHash, onClose }) => {
 
   const leaveRoom = async (roomId) => {
     if (isDemo) { setRooms(rooms.filter(r => r.id !== roomId)); setActiveRoom(null); return; }
-    try { await fetch(`${API_BASE}/portal/rooms/${roomId}/leave`, { method: 'POST', headers: hdrs() }); setActiveRoom(null); fetchRooms(); toast({ title: 'Left Room' }); } catch (err) {}
+    try { await fetch(`${API_BASE}/portal/rooms/${roomId}/leave`, { method: 'POST', headers: hdrs() }); setActiveRoom(null); fetchRooms(); toast({ title: 'Left Chat' }); } catch (err) {}
   };
 
   const destroyRoom = async (roomId) => {
     if (isDemo) { setRooms(rooms.filter(r => r.id !== roomId)); setActiveRoom(null); return; }
-    try { await fetch(`${API_BASE}/portal/rooms/${roomId}`, { method: 'DELETE', headers: hdrs() }); setActiveRoom(null); fetchRooms(); toast({ title: 'Room Destroyed' }); } catch (err) {}
+    try { await fetch(`${API_BASE}/portal/rooms/${roomId}`, { method: 'DELETE', headers: hdrs() }); setActiveRoom(null); fetchRooms(); toast({ title: 'Chat Destroyed' }); } catch (err) {}
   };
 
   const sendMsg = async () => {
@@ -124,10 +124,10 @@ const BurnerRoomsPanel = ({ sessionToken, codeHash, onClose }) => {
       <div className="flex items-center justify-between px-4 py-3 bg-[#202c33]">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-[#6B5CE7]/20 flex items-center justify-center"><Users className="w-5 h-5 text-[#6B5CE7]" /></div>
-          <div><p className="text-[#e9edef] text-sm font-medium">Burner Rooms</p><p className="text-[#8696a0] text-[11px]" style={mono}>Temporary · Encrypted</p></div>
+          <div><p className="text-[#e9edef] text-sm font-medium">Group Chat</p><p className="text-[#8696a0] text-[11px]" style={mono}>Temporary · Encrypted</p></div>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => setShowJoin(!showJoin)} className="w-9 h-9 rounded-full hover:bg-[#2a3942] flex items-center justify-center transition-colors" title="Join Room"><Users className="w-4 h-4 text-[#aebac1]" /></button>
+          <button onClick={() => setShowJoin(!showJoin)} className="w-9 h-9 rounded-full hover:bg-[#2a3942] flex items-center justify-center transition-colors" title="Join"><Users className="w-4 h-4 text-[#aebac1]" /></button>
           <button onClick={() => setShowCreate(!showCreate)} className="w-9 h-9 rounded-full hover:bg-[#2a3942] flex items-center justify-center transition-colors" title="New Room"><Plus className="w-5 h-5 text-[#aebac1]" /></button>
           <button onClick={onClose} className="w-9 h-9 rounded-full hover:bg-[#2a3942] flex items-center justify-center transition-colors"><X className="w-5 h-5 text-[#aebac1]" /></button>
         </div>
@@ -154,7 +154,7 @@ const BurnerRoomsPanel = ({ sessionToken, codeHash, onClose }) => {
         {showJoin && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
             <div className="px-3 py-3 bg-[#182229] border-b border-[#222d35] space-y-2">
-              <input value={joinId} onChange={(e) => setJoinId(e.target.value)} placeholder="Room ID..." className="w-full h-9 bg-[#202c33] text-[#e9edef] text-sm placeholder:text-[#8696a0] rounded-lg px-3 border-none outline-none" style={mono} />
+              <input value={joinId} onChange={(e) => setJoinId(e.target.value)} placeholder="Phone number..." className="w-full h-9 bg-[#202c33] text-[#e9edef] text-sm placeholder:text-[#8696a0] rounded-lg px-3 border-none outline-none" style={mono} />
               <div className="flex gap-2">
                 <input value={joinName} onChange={(e) => setJoinName(e.target.value)} placeholder="Display name..." className="flex-1 h-9 bg-[#202c33] text-[#e9edef] text-sm placeholder:text-[#8696a0] rounded-lg px-3 border-none outline-none" style={mono} />
                 <button onClick={joinRoom} className="h-9 px-4 bg-[#6B5CE7] text-white text-xs font-bold rounded-lg hover:bg-[#5a4bd6] active:scale-95 transition-all" style={mono}>Join</button>
@@ -169,8 +169,8 @@ const BurnerRoomsPanel = ({ sessionToken, codeHash, onClose }) => {
           <div className="flex items-center justify-center h-40"><Loader2 className="w-6 h-6 text-[#6B5CE7] animate-spin" /></div>
         ) : rooms.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-40 text-center px-6">
-            <p className="text-[#8696a0] text-sm mb-2">No active rooms</p>
-            <p className="text-[#8696a0] text-xs">Create or join a burner room</p>
+            <p className="text-[#8696a0] text-sm mb-2">No active chats</p>
+            <p className="text-[#8696a0] text-xs">Create or join a group chat</p>
           </div>
         ) : rooms.map((r) => (
           <button key={r.id} onClick={() => openRoom(r)} className={cn("w-full flex items-center gap-3 px-3 py-3 hover:bg-[#202c33] transition-colors text-left border-b border-[#222d35]/50", activeRoom?.id === r.id && "bg-[#2a3942]")}>
@@ -210,9 +210,9 @@ const BurnerRoomsPanel = ({ sessionToken, codeHash, onClose }) => {
             </div>
             <div className="flex gap-1">
               {activeRoom.isCreator ? (
-                <button onClick={() => destroyRoom(activeRoom.id)} className="w-9 h-9 rounded-full hover:bg-red-500/20 flex items-center justify-center" title="Destroy Room"><Trash2 className="w-4 h-4 text-red-400" /></button>
+                <button onClick={() => destroyRoom(activeRoom.id)} className="w-9 h-9 rounded-full hover:bg-red-500/20 flex items-center justify-center" title="Delete Chat"><Trash2 className="w-4 h-4 text-red-400" /></button>
               ) : (
-                <button onClick={() => leaveRoom(activeRoom.id)} className="w-9 h-9 rounded-full hover:bg-[#2a3942] flex items-center justify-center" title="Leave Room"><LeaveIcon className="w-4 h-4 text-[#aebac1]" /></button>
+                <button onClick={() => leaveRoom(activeRoom.id)} className="w-9 h-9 rounded-full hover:bg-[#2a3942] flex items-center justify-center" title="Leave Chat"><LeaveIcon className="w-4 h-4 text-[#aebac1]" /></button>
               )}
               <button onClick={onClose} className="w-9 h-9 rounded-full hover:bg-[#2a3942] flex items-center justify-center"><X className="w-4 h-4 text-[#aebac1]" /></button>
             </div>
@@ -220,7 +220,7 @@ const BurnerRoomsPanel = ({ sessionToken, codeHash, onClose }) => {
 
           <div className="flex-1 overflow-y-auto px-4 sm:px-12 lg:px-16 py-3" style={{ backgroundColor: '#0b141a' }}>
             <div className="flex justify-center py-2 mb-3">
-              <span className="bg-[#182229] text-[#f59e0b] text-[10px] px-3 py-1.5 rounded-lg shadow-sm flex items-center gap-1.5" style={mono}><AlertTriangle className="w-3 h-3" /> Room self-destructs in {fmtExpiry(activeRoom.expiresAt)}</span>
+              <span className="bg-[#182229] text-[#f59e0b] text-[10px] px-3 py-1.5 rounded-lg shadow-sm flex items-center gap-1.5" style={mono}><AlertTriangle className="w-3 h-3" /> Chat expires in {fmtExpiry(activeRoom.expiresAt)}</span>
             </div>
             {messages.length === 0 ? (
               <div className="flex items-center justify-center h-32">
@@ -261,9 +261,9 @@ const BurnerRoomsPanel = ({ sessionToken, codeHash, onClose }) => {
         <div className="hidden md:flex flex-col items-center justify-center h-full bg-[#222e35] text-center">
           <div className="w-[320px]">
             <div className="w-20 h-20 rounded-full bg-[#2a3942] flex items-center justify-center mx-auto mb-6"><Users className="w-9 h-9 text-[#8696a0]" /></div>
-            <h3 className="text-[#e9edef] text-2xl font-light mb-2">Burner Rooms</h3>
-            <p className="text-[#8696a0] text-sm leading-relaxed">Temporary group chats that self-destruct. No history, no traces.</p>
-            <div className="mt-6 flex items-center justify-center gap-2 text-[#8696a0] text-xs"><Lock className="w-3 h-3" /><span>Auto-delete · No logs</span></div>
+            <h3 className="text-[#e9edef] text-2xl font-light mb-2">Group Chat</h3>
+            <p className="text-[#8696a0] text-sm leading-relaxed">Temporary group chats that auto-expire. No history, no traces.</p>
+            <div className="mt-6 flex items-center justify-center gap-2 text-[#8696a0] text-xs"><Lock className="w-3 h-3" /><span>Auto-expire · No logs</span></div>
           </div>
         </div>
       )}
@@ -272,8 +272,8 @@ const BurnerRoomsPanel = ({ sessionToken, codeHash, onClose }) => {
 
   return (
     <div className="flex h-full bg-[#111b21] overflow-hidden rounded-none md:rounded-lg">
-      <RoomList />
-      <RoomChat />
+      {RoomList()}
+      {RoomChat()}
     </div>
   );
 };

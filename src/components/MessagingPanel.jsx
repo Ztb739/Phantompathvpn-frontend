@@ -162,9 +162,10 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
   };
 
   const sendMsg = async () => {
-    if (!newMessage.trim() || sending) return;
-    const body = newMessage.trim();
-    setNewMessage(''); setSending(true);
+    const body = (inputRef.current?.value || newMessage || '').trim();
+    if (!body || sending) return;
+    setNewMessage('');
+    if (inputRef.current) inputRef.current.value = ''; setSending(true);
     const tempId = `temp-${Date.now()}`;
     setMessages((prev) => [...prev, { id: tempId, direction: 'OUTBOUND', body, status: 'QUEUED', createdAt: new Date().toISOString() }]);
 
@@ -381,20 +382,20 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
 
           {/* Input - keyboard-safe with Visual Viewport API */}
           <div className="flex items-center gap-2 px-3 py-2.5 bg-[#202c33]" style={{ paddingBottom: keyboardOffset > 0 ? `${keyboardOffset + 10}px` : undefined, transition: 'padding-bottom 0.1s ease' }}>
-            <button className="w-9 h-9 rounded-full hover:bg-[#2a3942] flex items-center justify-center flex-shrink-0" title="Attach">
-              <Paperclip className="w-5 h-5 text-[#aebac1]" />
+            <button className="w-9 h-9 rounded-full hover:bg-[#2a3942] flex items-center justify-center flex-shrink-0" style={{display:"none"}}>
+              
             </button>
             <div className="flex-1 relative">
               <input
                 ref={inputRef}
                 defaultValue=""
-                onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); const val = inputRef.current?.value?.trim(); if (val) { setNewMessage(val); setTimeout(() => { sendMsg(); inputRef.current.value = ''; }, 0); } } }}
+                onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); } }}
                 placeholder="Type a message"
                 className="w-full h-10 bg-[#2a3942] text-[#e9edef] text-sm placeholder:text-[#8696a0] rounded-lg px-4 border-none outline-none focus:ring-0"
                 maxLength={1600}
               />
             </div>
-            <button onClick={() => { const val = inputRef.current?.value?.trim(); if (val) { setNewMessage(val); setTimeout(() => { sendMsg(); inputRef.current.value = ''; }, 0); } }} className="w-9 h-9 rounded-full bg-[#00a884] hover:bg-[#06cf9c] flex items-center justify-center flex-shrink-0 transition-colors">
+            <button onClick={() => sendMsg()} className="w-9 h-9 rounded-full bg-[#00a884] hover:bg-[#06cf9c] flex items-center justify-center flex-shrink-0 transition-colors">
               {sending ? <Loader2 className="w-4.5 h-4.5 text-[#111b21] animate-spin" /> : <Send className="w-4.5 h-4.5 text-[#111b21]" />}
             </button>
           </div>
