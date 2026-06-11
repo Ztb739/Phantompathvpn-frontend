@@ -89,7 +89,7 @@ const AdminGodMode = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#050b14] p-4 md:p-8 pt-24">
+    <div className="min-h-screen bg-[#050b14] p-4 md:p-8 pt-28">
       <Helmet><title>God Mode | PhantomPath Admin</title></Helmet>
       <div className="max-w-2xl mx-auto">
         <div className="bg-[#0a1120] border border-red-500/20 rounded-2xl p-6 mb-6">
