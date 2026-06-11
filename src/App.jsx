@@ -37,6 +37,7 @@ import AICatalogue from '@/pages/AICatalogue.jsx';
 import ADRPage from '@/pages/ADRPage.jsx';
 import CookiePolicyPage from '@/pages/CookiePolicyPage.jsx';
 import PortalPage from '@/pages/PortalPage.jsx';
+import AdminGodMode from '@/pages/AdminGodMode';
 import SuccessPage from '@/pages/SuccessPage.jsx';
 
 const LandingPage = () => (
