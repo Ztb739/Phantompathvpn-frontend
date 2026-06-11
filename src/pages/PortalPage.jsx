@@ -26,6 +26,9 @@ const PortalPage = () => {
   const [switchCode, setSwitchCode] = useState('');
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [showRecovery, setShowRecovery] = useState(false);
+  const [secretKey, setSecretKey] = useState('');
+  const [recoveryResult, setRecoveryResult] = useState('');
   const [showEsimGuide, setShowEsimGuide] = useState(false);
   const [showVpnGuide, setShowVpnGuide] = useState(false);
   const [servicesLoading, setServicesLoading] = useState(false);
@@ -94,6 +97,23 @@ const PortalPage = () => {
   };
 
   const hdrs = (t, h) => ({ 'x-session-token': t || sessionToken, 'x-code-hash': h || codeHash });
+  const handleRecover = async () => {
+    if (!secretKey.trim()) return;
+    setError('');
+    setRecoveryResult('');
+    try {
+      const res = await fetch(`${API_BASE}/portal/recover`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ secretKey: secretKey.trim() }) });
+      const data = await res.json();
+      if (data.success && data.code) {
+        setRecoveryResult(data.code);
+      } else {
+        setError(data.message || 'Invalid secret key');
+      }
+    } catch (err) {
+      setError('Recovery failed. Please try again.');
+    }
+  };
+
   const comingSoon = () => toast({ title: 'Private Beta', description: 'Payments are disabled during the private beta. Coming soon.' });
 
   const handleConnect = async (e) => {
@@ -167,6 +187,20 @@ const PortalPage = () => {
             {error && <p className="text-red-400 text-xs text-center">{error}</p>}
             <Button type="submit" className="w-full h-11 bg-[#3affc2] text-[#050b14] hover:bg-[#2ee6ae] font-bold text-base rounded-lg transition-all group mt-1 glow-phantom glow-phantom-hover">Become a Phantom <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" /></Button>
             <p className="text-xs text-gray-400 mt-3 text-center" style={mono}>[SIGNAL_LOCKED] // ENCRYPTION: AES-256 // STATUS: READY_TO_STRIKE</p>
+            <button type="button" onClick={() => { setShowRecovery(!showRecovery); setError(''); setRecoveryResult(''); }} className="text-[10px] text-[#3affc2]/60 hover:text-[#3affc2] mt-2 transition-colors" style={mono}>Lost your code? Recover with Secret Key</button>
+            {showRecovery && (
+              <div className="w-full mt-3 space-y-2">
+                <input value={secretKey} onChange={(e) => setSecretKey(e.target.value.toUpperCase())} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleRecover(); } }} placeholder="SK-XXXX-XXXX-XXXX" className="w-full h-10 bg-[#050b14] border border-[#FFE600]/20 text-white placeholder:text-gray-600 text-center text-sm rounded-lg focus:ring-1 focus:ring-[#FFE600]/50 focus:border-[#FFE600] outline-none transition-all" style={{ ...mono, letterSpacing: '2px' }} />
+                <button type="button" onClick={handleRecover} className="w-full h-9 bg-[#FFE600]/10 border border-[#FFE600]/30 text-[#FFE600] hover:bg-[#FFE600]/20 text-xs font-bold rounded-lg transition-all active:scale-95" style={mono}>Recover Access Code</button>
+                {recoveryResult && (
+                  <div className="bg-[#050b14] border border-[#3affc2]/30 rounded-lg p-3 mt-2">
+                    <p className="text-[10px] text-[#3affc2]/70 mb-1" style={mono}>Your Access Code:</p>
+                    <p className="text-[#3affc2] text-sm font-bold break-all select-all" style={mono}>{recoveryResult}</p>
+                    <button type="button" onClick={() => { navigator.clipboard.writeText(recoveryResult); toast({ title: 'Copied', description: 'Access code copied to clipboard' }); }} className="mt-2 text-[10px] text-[#3affc2]/60 hover:text-[#3affc2] transition-colors" style={mono}>Copy to clipboard</button>
+                  </div>
+                )}
+              </div>
+            )}
           </form>
           <div className="w-full pt-6 border-t border-white/5 flex flex-col items-center relative z-20"><div className="flex items-center justify-center gap-5 mb-3 text-[#3affc2]/60"><Smartphone className="w-4 h-4" /><Laptop className="w-4 h-4" /><Tablet className="w-4 h-4" /><Gamepad2 className="w-4 h-4" /><Zap className="w-4 h-4" /><Tv className="w-4 h-4" /></div><p className="text-[11px] text-gray-500 max-w-[240px] font-medium leading-normal uppercase tracking-wider">Available on multiple platforms</p></div>
         </div>
