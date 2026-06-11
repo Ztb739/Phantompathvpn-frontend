@@ -16,6 +16,8 @@ const SuccessPage = () => {
   const product = searchParams.get('product') || 'Service';
   const duration = searchParams.get('duration') || '24 Hours';
   const price = searchParams.get('price') || '£0.00';
+  const secretKey = searchParams.get('secretKey') || null;
+  const [skCopied, setSkCopied] = useState(false);
 
   const handleDownloadPDF = () => {
     try {
@@ -144,13 +146,26 @@ const SuccessPage = () => {
         <div className="w-full bg-[#0a1120] border-2 border-[#f59e0b] rounded-xl p-8 mb-8 text-center shadow-[0_0_30px_rgba(245,158,11,0.15)] relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-transparent via-[#f59e0b] to-transparent animate-pulse" />
           <p className="text-[#f59e0b] text-xs font-mono uppercase tracking-widest mb-1">⚠ IMPORTANT — SAVE YOUR ACCESS CODE</p>
-          <p className="text-gray-500 text-[10px] font-mono mb-4">This is your only way to access the portal. It cannot be recovered.</p>
+          <p className="text-gray-500 text-[10px] font-mono mb-4">This is your only way to access the portal. Save your Secret Key below to enable recovery.</p>
           <div className="bg-[#050b14] border border-[#00ffc8]/30 rounded-lg p-5 mb-4">
             <p className="text-[#00ffc8] text-3xl sm:text-4xl font-bold font-mono tracking-widest select-all break-all">{accessCode}</p>
           </div>
           <button onClick={() => { navigator.clipboard.writeText(accessCode); setCopied(true); setTimeout(() => setCopied(false), 2000); }} className="h-10 px-6 bg-[#f59e0b]/20 border border-[#f59e0b]/40 text-[#f59e0b] text-xs font-bold font-mono rounded-lg hover:bg-[#f59e0b]/30 hover:shadow-[0_0_15px_rgba(245,158,11,0.2)] active:scale-95 transition-all">
             {copied ? '✓ COPIED' : 'COPY ACCESS CODE'}
           </button>
+          {secretKey && (
+            <div className="mt-6 w-full">
+              <div className="h-px w-full bg-[#f59e0b]/20 mb-4" />
+              <p className="text-[#FFE600] text-xs font-mono uppercase tracking-widest mb-1">🔑 SECRET RECOVERY KEY</p>
+              <p className="text-gray-500 text-[10px] font-mono mb-3">Save this separately. Use it to recover your access code if lost.</p>
+              <div className="bg-[#050b14] border border-[#FFE600]/30 rounded-lg p-4 mb-3">
+                <p className="text-[#FFE600] text-2xl sm:text-3xl font-bold font-mono tracking-widest select-all text-center">{secretKey}</p>
+              </div>
+              <button onClick={() => { navigator.clipboard.writeText(secretKey); setSkCopied(true); setTimeout(() => setSkCopied(false), 2000); }} className="h-10 px-6 bg-[#FFE600]/10 border border-[#FFE600]/30 text-[#FFE600] text-xs font-bold font-mono rounded-lg hover:bg-[#FFE600]/20 active:scale-95 transition-all">
+                {skCopied ? '✓ COPIED' : 'COPY SECRET KEY'}
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="w-full border-2 border-[#00ffc8] rounded-lg p-6 bg-black/40 shadow-[0_0_15px_rgba(0,255,200,0.1)] backdrop-blur-sm mb-12">
