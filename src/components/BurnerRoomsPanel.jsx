@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Send, Plus, Users, Clock, Loader2, ArrowLeft, Trash2, LogOut as LeaveIcon, Lock, Timer, AlertTriangle } from 'lucide-react';
+import { X, Send, Plus, Users, Clock, Loader2, ArrowLeft, Trash2, LogOut as LeaveIcon, Lock, Timer, AlertTriangle, UserPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
@@ -16,6 +16,8 @@ const BurnerRoomsPanel = ({ sessionToken, codeHash, onClose }) => {
   const [sending, setSending] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const [showJoin, setShowJoin] = useState(false);
+  const [showInvite, setShowInvite] = useState(false);
+  const [inviteNumber, setInviteNumber] = useState('');
   const [createForm, setCreateForm] = useState({ name: '', autoDeleteHours: 24, displayName: 'Ghost' });
   const [joinId, setJoinId] = useState('');
   const [joinName, setJoinName] = useState('Ghost');
@@ -83,6 +85,17 @@ const BurnerRoomsPanel = ({ sessionToken, codeHash, onClose }) => {
       else { const data = await res.json(); toast({ title: 'Error', description: data.message, variant: 'destructive' }); }
     } catch (err) { toast({ title: 'Error', description: 'Failed to join room', variant: 'destructive' }); }
     setShowJoin(false); setJoinId('');
+  };
+
+  const inviteUser = async () => {
+    if (!inviteNumber.trim() || !activeRoom) return;
+    if (isDemo) { toast({ title: 'Invited', description: `${inviteNumber} added to chat` }); setShowInvite(false); setInviteNumber(''); return; }
+    try {
+      const res = await fetch(`${API_BASE}/portal/rooms/${activeRoom.id}/invite`, { method: 'POST', headers: hdrs(), body: JSON.stringify({ phoneNumber: inviteNumber.trim() }) });
+      if (res.ok) { toast({ title: 'Invited', description: `${inviteNumber} added to chat` }); fetchRooms(); }
+      else { const data = await res.json(); toast({ title: 'Error', description: data.message, variant: 'destructive' }); }
+    } catch (err) { toast({ title: 'Error', description: 'Failed to invite user', variant: 'destructive' }); }
+    setShowInvite(false); setInviteNumber('');
   };
 
   const leaveRoom = async (roomId) => {
@@ -209,6 +222,7 @@ const BurnerRoomsPanel = ({ sessionToken, codeHash, onClose }) => {
               <p className="text-[#8696a0] text-xs" style={mono}>{activeRoom.memberCount} members · <Timer className="w-3 h-3 inline" /> {fmtExpiry(activeRoom.expiresAt)}</p>
             </div>
             <div className="flex gap-1">
+              <button onClick={() => setShowInvite(!showInvite)} className="w-9 h-9 rounded-full hover:bg-[#6B5CE7]/20 flex items-center justify-center" title="Invite by number"><UserPlus className="w-4 h-4 text-[#6B5CE7]" /></button>
               {activeRoom.isCreator ? (
                 <button onClick={() => destroyRoom(activeRoom.id)} className="w-9 h-9 rounded-full hover:bg-red-500/20 flex items-center justify-center" title="Delete Chat"><Trash2 className="w-4 h-4 text-red-400" /></button>
               ) : (
@@ -217,6 +231,12 @@ const BurnerRoomsPanel = ({ sessionToken, codeHash, onClose }) => {
               <button onClick={onClose} className="w-9 h-9 rounded-full hover:bg-[#2a3942] flex items-center justify-center"><X className="w-4 h-4 text-[#aebac1]" /></button>
             </div>
           </div>
+          {showInvite && (
+            <div className="px-4 py-3 bg-[#182229] border-b border-[#222d35] flex gap-2">
+              <input value={inviteNumber} onChange={(e) => setInviteNumber(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') inviteUser(); }} placeholder="Enter phone number to invite..." className="flex-1 h-9 bg-[#202c33] text-[#e9edef] text-sm placeholder:text-[#8696a0] rounded-lg px-3 border-none outline-none" style={mono} autoFocus />
+              <button onClick={inviteUser} className="h-9 px-4 bg-[#6B5CE7] text-white text-xs font-bold rounded-lg hover:bg-[#5a4bd6] active:scale-95 transition-all" style={mono}>Invite</button>
+            </div>
+          )}
 
           <div className="flex-1 overflow-y-auto px-4 sm:px-12 lg:px-16 py-3" style={{ backgroundColor: '#0b141a' }}>
             <div className="flex justify-center py-2 mb-3">
