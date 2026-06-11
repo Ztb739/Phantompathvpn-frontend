@@ -118,7 +118,7 @@ const PortalPage = () => {
   const burnNumber = async () => {
     if (burnStep === 0) { setBurnStep(1); return; }
     if (burnStep === 1) { setBurnStep(2); return; }
-    if (isDemo) { toast({ title: 'Demo Mode', description: 'Cannot burn number in demo mode' }); setBurnStep(0); return; }
+    if (sessionToken === 'demo-token') { toast({ title: 'Demo Mode', description: 'Cannot burn number in demo mode' }); setBurnStep(0); return; }
     try {
       const res = await fetch(`${API_BASE}/portal/burn-number`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...hdrs() } });
       const data = await res.json();
