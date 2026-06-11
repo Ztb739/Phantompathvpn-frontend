@@ -27,6 +27,7 @@ const PortalPage = () => {
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showRecovery, setShowRecovery] = useState(false);
+  const [burnStep, setBurnStep] = useState(0);
   const [secretKey, setSecretKey] = useState('');
   const [recoveryResult, setRecoveryResult] = useState('');
   const [showEsimGuide, setShowEsimGuide] = useState(false);
@@ -112,6 +113,19 @@ const PortalPage = () => {
     } catch (err) {
       setRecoveryResult('ERROR:Recovery failed. Please try again.');
     }
+  };
+
+  const burnNumber = async () => {
+    if (burnStep === 0) { setBurnStep(1); return; }
+    if (burnStep === 1) { setBurnStep(2); return; }
+    if (isDemo) { toast({ title: 'Demo Mode', description: 'Cannot burn number in demo mode' }); setBurnStep(0); return; }
+    try {
+      const res = await fetch(`${API_BASE}/portal/burn-number`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...hdrs() } });
+      const data = await res.json();
+      if (data.success) { toast({ title: 'Number Destroyed', description: 'Your virtual number has been permanently destroyed.' }); loadServices(sessionToken, codeHash); }
+      else { toast({ title: 'Error', description: data.message, variant: 'destructive' }); }
+    } catch (err) { toast({ title: 'Error', description: 'Failed to burn number', variant: 'destructive' }); }
+    setBurnStep(0);
   };
 
   const comingSoon = () => toast({ title: 'Private Beta', description: 'Payments are disabled during the private beta. Coming soon.' });
@@ -293,6 +307,10 @@ const PortalPage = () => {
                       </div>
                     </div>
                     <p className="text-white/70 text-[10px] text-center" style={mono}>Your number is ready. No setup required.</p>
+                    <button onClick={burnNumber} className={`w-full h-8 border text-[9px] rounded-lg flex items-center justify-center gap-1 transition-all active:scale-95 ${burnStep === 0 ? 'bg-transparent border-red-500/20 text-red-400/60 hover:text-red-400 hover:border-red-500/40' : burnStep === 1 ? 'bg-red-500/10 border-red-500/40 text-red-400 animate-pulse' : 'bg-red-500/20 border-red-500/60 text-red-300 font-bold'}`} style={mono}>
+                      {burnStep === 0 ? 'Burn Number' : burnStep === 1 ? '⚠ This will permanently destroy your number. Continue?' : '🔥 CONFIRM DESTROY — This cannot be undone'}
+                    </button>
+                    {burnStep > 0 && <button onClick={() => setBurnStep(0)} className="w-full h-7 text-[9px] text-gray-500 hover:text-white transition-colors" style={mono}>Cancel</button>}
                     <div className="grid grid-cols-3 gap-2">
                       <button onClick={() => navigateToTab('messages')} className="h-10 bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 active:scale-95 text-[11px] rounded-xl flex items-center justify-center gap-1.5 transition-all" style={mono}><MessageCircle className="w-3.5 h-3.5" />Messages</button>
                       <button onClick={() => navigateToTab('calls')} className="h-10 bg-[#3affc2]/10 border border-[#3affc2]/20 text-[#3affc2] hover:bg-[#3affc2]/20 active:scale-95 text-[11px] rounded-xl flex items-center justify-center gap-1.5 transition-all" style={mono}><Phone className="w-3.5 h-3.5" />Calls</button>
