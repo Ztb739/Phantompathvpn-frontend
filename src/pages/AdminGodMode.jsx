@@ -75,7 +75,7 @@ const AdminGodMode = () => {
   const logout = () => { setToken(''); localStorage.removeItem('gm_token'); };
 
   if (!token) return (
-    <div className="min-h-screen bg-[#050b14] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#050b14] flex items-center justify-center p-4 pt-24">
       <Helmet><title>God Mode | PhantomPath Admin</title></Helmet>
       <div className="w-full max-w-sm bg-[#0a1120] border border-red-500/20 rounded-2xl p-6">
         <h1 className="text-red-400 text-lg font-bold mb-1 text-center" style={mono}>GOD MODE</h1>
@@ -89,7 +89,7 @@ const AdminGodMode = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#050b14] p-4 md:p-8">
+    <div className="min-h-screen bg-[#050b14] p-4 md:p-8 pt-24">
       <Helmet><title>God Mode | PhantomPath Admin</title></Helmet>
       <div className="max-w-2xl mx-auto">
         <div className="bg-[#0a1120] border border-red-500/20 rounded-2xl p-6 mb-6">

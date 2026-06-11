@@ -126,7 +126,7 @@ function App() {
       </Helmet>
       <div className="min-h-screen bg-[#050b14] text-white selection:bg-[#2dd4bf] selection:text-[#020617] font-sans flex flex-col">
         <CookieBanner />
-        {!window.location.pathname.includes('/god-mode') && <Header />}
+        <Header />
         <div className="flex-grow">
           <Routes>
             <Route path="/" element={<Navigate to="/portal" replace />} />
