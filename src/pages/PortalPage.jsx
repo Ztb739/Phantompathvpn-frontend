@@ -107,10 +107,10 @@ const PortalPage = () => {
       if (data.success && data.code) {
         setRecoveryResult(data.code);
       } else {
-        setError(data.message || 'Invalid secret key');
+        setRecoveryResult('ERROR:' + (data.message || 'Invalid secret key'));
       }
     } catch (err) {
-      setError('Recovery failed. Please try again.');
+      setRecoveryResult('ERROR:Recovery failed. Please try again.');
     }
   };
 
@@ -192,12 +192,15 @@ const PortalPage = () => {
               <div className="w-full mt-3 space-y-2">
                 <input value={secretKey} onChange={(e) => setSecretKey(e.target.value.toUpperCase())} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleRecover(); } }} placeholder="SK-XXXX-XXXX-XXXX" className="w-full h-10 bg-[#050b14] border border-[#FFE600]/20 text-white placeholder:text-gray-600 text-center text-sm rounded-lg focus:ring-1 focus:ring-[#FFE600]/50 focus:border-[#FFE600] outline-none transition-all" style={{ ...mono, letterSpacing: '2px' }} />
                 <button type="button" onClick={handleRecover} className="w-full h-9 bg-[#FFE600]/10 border border-[#FFE600]/30 text-[#FFE600] hover:bg-[#FFE600]/20 text-xs font-bold rounded-lg transition-all active:scale-95" style={mono}>Recover Access Code</button>
-                {recoveryResult && (
+                {recoveryResult && !recoveryResult.startsWith('ERROR:') && (
                   <div className="bg-[#050b14] border border-[#3affc2]/30 rounded-lg p-3 mt-2">
                     <p className="text-[10px] text-[#3affc2]/70 mb-1" style={mono}>Your Access Code:</p>
                     <p className="text-[#3affc2] text-sm font-bold break-all select-all" style={mono}>{recoveryResult}</p>
                     <button type="button" onClick={() => { navigator.clipboard.writeText(recoveryResult); toast({ title: 'Copied', description: 'Access code copied to clipboard' }); }} className="mt-2 text-[10px] text-[#3affc2]/60 hover:text-[#3affc2] transition-colors" style={mono}>Copy to clipboard</button>
                   </div>
+                )}
+                {recoveryResult && recoveryResult.startsWith('ERROR:') && (
+                  <p className="text-red-400 text-xs text-center mt-1" style={mono}>{recoveryResult.replace('ERROR:','')}</p>
                 )}
               </div>
             )}
