@@ -308,7 +308,7 @@ const PortalPage = () => {
                     </div>
                     <p className="text-white/70 text-[10px] text-center" style={mono}>Your number is ready. No setup required.</p>
                     <button onClick={burnNumber} className={`w-full h-8 border text-[9px] rounded-lg flex items-center justify-center gap-1 transition-all active:scale-95 ${burnStep === 0 ? 'bg-transparent border-red-500/20 text-red-400/60 hover:text-red-400 hover:border-red-500/40' : burnStep === 1 ? 'bg-red-500/10 border-red-500/40 text-red-400 animate-pulse' : 'bg-red-500/20 border-red-500/60 text-red-300 font-bold'}`} style={mono}>
-                      {burnStep === 0 ? 'Burn Number' : burnStep === 1 ? '⚠ This will permanently destroy your number. Continue?' : '🔥 CONFIRM DESTROY — This cannot be undone'}
+                      {burnStep === 0 ? 'Delete Number' : burnStep === 1 ? '⚠ This will permanently delete your number. Continue?' : '🔥 CONFIRM DELETE — This cannot be undone'}
                     </button>
                     {burnStep > 0 && <button onClick={() => setBurnStep(0)} className="w-full h-7 text-[9px] text-gray-500 hover:text-white transition-colors" style={mono}>Cancel</button>}
                     <div className="grid grid-cols-3 gap-2">
