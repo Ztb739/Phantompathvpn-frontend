@@ -122,7 +122,7 @@ const PortalPage = () => {
     try {
       const res = await fetch(`${API_BASE}/portal/burn-number`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...hdrs() } });
       const data = await res.json();
-      if (data.success) { toast({ title: 'Number Destroyed', description: 'Your virtual number has been permanently destroyed.' }); loadServices(sessionToken, codeHash); }
+      if (data.success) { toast({ title: 'Number Deleted', description: 'Your virtual number has been permanently destroyed.' }); loadServices(sessionToken, codeHash); }
       else { toast({ title: 'Error', description: data.message, variant: 'destructive' }); }
     } catch (err) { toast({ title: 'Error', description: 'Failed to burn number', variant: 'destructive' }); }
     setBurnStep(0);

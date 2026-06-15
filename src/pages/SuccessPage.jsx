@@ -29,7 +29,7 @@ const SuccessPage = () => {
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(18);
       doc.setTextColor(0, 0, 0);
-      doc.text('PHANTOMPATH – GHOST BRIEFING', leftMargin, yPos);
+      doc.text('PHANTOMPATHVPN LTD – GHOST BRIEFING', leftMargin, yPos);
       yPos += 10;
 
       doc.setFont('courier', 'bold');
