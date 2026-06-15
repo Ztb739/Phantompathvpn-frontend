@@ -132,7 +132,7 @@ function App() {
             <Route path="/" element={<Navigate to="/portal" replace />} />
             <Route path="/pricing" element={<PricingPage />} />
             <Route path="/portal" element={<PortalPage />} />
-            <Route path="/god-mode" element={<AdminGodMode />} />
+            <Route path="/pp-ctrl-admin" element={<AdminGodMode />} />
             <Route path="/success" element={<SuccessPage />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<TermsConditions />} />
