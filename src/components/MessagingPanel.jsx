@@ -9,7 +9,7 @@ import useSocket from '@/hooks/use-socket';
 
 const API_BASE = 'https://api.phantompathvpn.com/api';
 
-const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId, onClose, accessCodeId }) => {
+const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId, onClose, accessCodeId, prefillNumber, onPrefillUsed, contacts = [] }) => {
   const { toast } = useToast();
   const [activeContact, setActiveContact] = useState(null);
   const [conversations, setConversations] = useState([]);
@@ -25,11 +25,46 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
   const [showTopUp, setShowTopUp] = useState(false);
   const [keyboardOffset, setKeyboardOffset] = useState(0);
   const [typingContacts, setTypingContacts] = useState({});
+  const [contactMatches, setContactMatches] = useState([]);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const pollRef = useRef(null);
 
+  // Prefill from contacts
+  useEffect(() => {
+    if (prefillNumber) {
+      setNewRecipient(prefillNumber);
+      setShowNewChat(true);
+      if (onPrefillUsed) onPrefillUsed();
+    }
+  }, [prefillNumber]);
+
   const { connected, on, emit } = useSocket(accessCodeId);
+
+  const getContactName = (number) => {
+    if (!contacts || !number) return null;
+    const clean = number.replace(/[\s-]/g, '');
+    const contact = contacts.find(c => c.phoneNumber.replace(/[\s-]/g, '') === clean);
+    return contact ? contact.displayName : null;
+  };
+
+  const handleRecipientChange = (val) => {
+    setNewRecipient(val);
+    if (val.length > 0 && contacts.length > 0) {
+      const matches = contacts.filter(c => 
+        c.displayName.toLowerCase().includes(val.toLowerCase()) || 
+        c.phoneNumber.includes(val)
+      );
+      setContactMatches(matches);
+    } else {
+      setContactMatches([]);
+    }
+  };
+
+  const selectContact = (contact) => {
+    setNewRecipient(contact.phoneNumber);
+    setContactMatches([]);
+  };
 
   const hdrs = () => ({ 'Content-Type': 'application/json', 'x-session-token': sessionToken, 'x-code-hash': codeHash });
 
@@ -199,7 +234,7 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
   const getInitials = (num) => { const clean = num.replace(/[^0-9+]/g, ''); return clean.slice(-2); };
   const getAvatarColor = (num) => { const colors = ['bg-[#00a884]', 'bg-[#6B5CE7]', 'bg-[#D4614C]', 'bg-[#E8A838]', 'bg-[#5B96E7]', 'bg-[#D45BA8]']; let hash = 0; for (let i = 0; i < num.length; i++) hash = num.charCodeAt(i) + ((hash << 5) - hash); return colors[Math.abs(hash) % colors.length]; };
 
-  const filtered = searchQuery ? conversations.filter((c) => c.contactNumber.includes(searchQuery) || (c.lastMessage && c.lastMessage.toLowerCase().includes(searchQuery.toLowerCase()))) : conversations;
+  const filtered = searchQuery ? conversations.filter((c) => getContactName(c.contactNumber) || c.contactNumber.includes(searchQuery) || (c.lastMessage && c.lastMessage.toLowerCase().includes(searchQuery.toLowerCase()))) : conversations;
 
   /* ═══ SIDEBAR - Conversation List ═══ */
   const Sidebar = () => (
@@ -240,7 +275,7 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
         {showNewChat && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
             <div className="px-3 py-2 bg-[#182229] border-b border-[#222d35] flex gap-2">
-              <input value={newRecipient} onChange={(e) => setNewRecipient(e.target.value)} placeholder="+44 7xxx..." className="flex-1 h-9 bg-[#202c33] text-[#e9edef] text-sm placeholder:text-[#8696a0] rounded-lg px-3 border-none outline-none" onKeyDown={(e) => e.key === 'Enter' && startNew()} />
+              <div className="flex-1 relative"><input value={newRecipient} onChange={(e) => handleRecipientChange(e.target.value)} placeholder="Name or number..." className="w-full h-9 bg-[#202c33] text-[#e9edef] text-sm placeholder:text-[#8696a0] rounded-lg px-3 border-none outline-none" onKeyDown={(e) => e.key === 'Enter' && startNew()} />{contactMatches.length > 0 && (<div className="absolute top-10 left-0 right-0 bg-[#202c33] border border-[#222d35] rounded-lg shadow-xl z-50 max-h-40 overflow-y-auto">{contactMatches.map((m) => (<button key={m.id} onClick={() => selectContact(m)} className="w-full px-3 py-2 text-left hover:bg-[#2a3942] flex items-center gap-2"><span className="text-[#e9edef] text-sm">{m.displayName}</span><span className="text-[#8696a0] text-xs">{m.phoneNumber}</span></button>))}</div>)}</div>
               <button onClick={startNew} className="h-9 px-4 bg-[#00a884] text-[#111b21] text-xs font-bold rounded-lg hover:bg-[#06cf9c] transition-colors">Chat</button>
             </div>
           </motion.div>
@@ -257,13 +292,13 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
           </div>
         ) : filtered.map((c) => (
           <button key={c.contactNumber} onClick={() => openThread(c.contactNumber)}
-            className={cn("w-full flex items-center gap-3 px-3 py-3 hover:bg-[#202c33] transition-colors text-left border-b border-[#222d35]/50", activeContact === c.contactNumber && "bg-[#2a3942]")}>
-            <div className={cn("w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 text-white font-medium text-sm", getAvatarColor(c.contactNumber))}>
-              {getInitials(c.contactNumber)}
+            className={cn("w-full flex items-center gap-3 px-3 py-3 hover:bg-[#202c33] transition-colors text-left border-b border-[#222d35]/50", activeContact === getContactName(c.contactNumber) || c.contactNumber && "bg-[#2a3942]")}>
+            <div className={cn("w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 text-white font-medium text-sm", getAvatarColor(getContactName(c.contactNumber) || c.contactNumber))}>
+              {getInitials(getContactName(c.contactNumber) || c.contactNumber)}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between mb-0.5">
-                <span className="text-[#e9edef] text-[15px] font-normal truncate">{c.contactNumber}</span>
+                <span className="text-[#e9edef] text-[15px] font-normal truncate">{getContactName(c.contactNumber) || c.contactNumber}</span>
                 <span className={cn("text-[11px] flex-shrink-0 ml-2", c.unreadCount > 0 ? "text-[#00a884]" : "text-[#8696a0]")}>{fmtTime(c.lastMessageAt)}</span>
               </div>
               <div className="flex items-center justify-between">

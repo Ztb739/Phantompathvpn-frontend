@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 const API_BASE = 'https://api.phantompathvpn.com/api';
 const mono = { fontFamily: "'SF Mono', 'Fira Code', 'Courier New', monospace" };
 
-const CallPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId, onClose }) => {
+const CallPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId, onClose, prefillNumber, onPrefillUsed, contacts = [] }) => {
   const { toast } = useToast();
   const [callHistory, setCallHistory] = useState([]);
   const [dialNumber, setDialNumber] = useState('');
@@ -22,6 +22,45 @@ const CallPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId, onC
   const timerRef = useRef(null);
   const telnyxClientRef = useRef(null);
   const currentCallRef = useRef(null);
+
+  const [contactMatches, setContactMatches] = useState([]);
+
+  // Prefill from contacts
+  useEffect(() => {
+    if (prefillNumber) {
+      setDialNumber(prefillNumber);
+      if (onPrefillUsed) onPrefillUsed();
+    }
+  }, [prefillNumber]);
+
+  const getContactName = (number) => {
+    if (!contacts || !number) return null;
+    const clean = number.replace(/[\s-]/g, '');
+    const contact = contacts.find(c => c.phoneNumber.replace(/[\s-]/g, '') === clean);
+    return contact ? contact.displayName : null;
+  };
+
+  const handleDialInput = (val) => {
+    setDialNumber(val);
+    if (val.length > 0 && !/^[0-9+\s]*$/.test(val) && contacts.length > 0) {
+      const matches = contacts.filter(c => 
+        c.displayName.toLowerCase().includes(val.toLowerCase())
+      );
+      setContactMatches(matches);
+    } else if (val.length > 0 && contacts.length > 0) {
+      const matches = contacts.filter(c => 
+        c.phoneNumber.includes(val)
+      );
+      setContactMatches(matches.length > 0 ? matches : []);
+    } else {
+      setContactMatches([]);
+    }
+  };
+
+  const selectContact = (contact) => {
+    setDialNumber(contact.phoneNumber);
+    setContactMatches([]);
+  };
 
   const hdrs = () => ({ 'Content-Type': 'application/json', 'x-session-token': sessionToken, 'x-code-hash': codeHash });
   const isDemo = !sessionToken || sessionToken === '' || sessionToken === 'demo-token';
@@ -204,8 +243,8 @@ const CallPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId, onC
         {/* Dial Pad */}
         <div className="px-4 py-4 bg-[#0b141a] border-b border-[#222d35]">
           <div className="bg-[#202c33] rounded-xl p-3 mb-3 flex items-center">
-            <input value={dialNumber} onChange={(e) => setDialNumber(e.target.value.replace(/[^0-9+\s]/g, ''))} placeholder="Enter number..." className="flex-1 bg-transparent text-[#e9edef] text-lg text-center outline-none placeholder:text-[#8696a0]" style={mono} />
-            {dialNumber && <button onClick={dialPadDelete} className="w-8 h-8 rounded-full hover:bg-[#374a55] flex items-center justify-center"><Delete className="w-4 h-4 text-[#aebac1]" /></button>}
+            <input value={dialNumber} onChange={(e) => handleDialInput(e.target.value)} placeholder="Name or number..." className="flex-1 bg-transparent text-[#e9edef] text-lg text-center outline-none placeholder:text-[#8696a0]" style={mono} />
+            {contactMatches.length > 0 && (<div className="absolute top-12 left-0 right-0 bg-[#202c33] border border-[#222d35] rounded-lg shadow-xl z-50 max-h-40 overflow-y-auto">{contactMatches.map((m) => (<button key={m.id} onClick={() => selectContact(m)} className="w-full px-3 py-2 text-left hover:bg-[#2a3942] flex items-center gap-2"><span className="text-[#e9edef] text-sm">{m.displayName}</span><span className="text-[#8696a0] text-xs">{m.phoneNumber}</span></button>))}</div>)}{dialNumber && <button onClick={dialPadDelete} className="w-8 h-8 rounded-full hover:bg-[#374a55] flex items-center justify-center"><Delete className="w-4 h-4 text-[#aebac1]" /></button>}
           </div>
           <div className="grid grid-cols-3 gap-2 mb-3">
             {['1','2','3','4','5','6','7','8','9','*','0','#'].map((d) => (

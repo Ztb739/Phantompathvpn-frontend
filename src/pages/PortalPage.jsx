@@ -28,6 +28,8 @@ const PortalPage = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showRecovery, setShowRecovery] = useState(false);
   const [burnStep, setBurnStep] = useState(0);
+  const [prefillNumber, setPrefillNumber] = useState('');
+  const [portalContacts, setPortalContacts] = useState([]);
   const [secretKey, setSecretKey] = useState('');
   const [recoveryResult, setRecoveryResult] = useState('');
   const [showEsimGuide, setShowEsimGuide] = useState(false);
@@ -56,7 +58,7 @@ const PortalPage = () => {
         setWallet({ balance: 5.00, currency: 'GBP' });
         setVpnNodes([{ id: 'demo-au', name: 'australia-sydney-1', country: 'Australia', countryCode: 'AU', city: 'Sydney', status: 'ONLINE', load: 12 }]);
       } else {
-        loadServices(sessionToken, codeHash);
+        loadServices(sessionToken, codeHash); loadContacts(sessionToken, codeHash);
         loadVpnNodes(sessionToken, codeHash);
       }
     }
@@ -153,14 +155,31 @@ const PortalPage = () => {
       if (res.status === 429) { setError(data.message || 'Too many attempts.'); setView('login'); toast({ title: 'Locked Out', description: data.message, variant: 'destructive' }); return; }
       if (res.status === 401) { setError(data.message || 'Invalid access code'); setView('login'); toast({ title: 'Access Denied', description: data.message, variant: 'destructive' }); return; }
       if (data.activeSession) { setSwitchCode(accessCode); setView('switch'); return; }
-      if (data.token) { setSessionToken(data.token); setCodeHash(data.codeHash); setExpiresAt(data.accessCodeExpiresAt); setView('dashboard'); loadServices(data.token, data.codeHash); loadVpnNodes(data.token, data.codeHash); toast({ title: 'Path Established', description: 'Secure tunnel active. Welcome, Ghost.' }); }
+      if (data.token) { setSessionToken(data.token); setCodeHash(data.codeHash); setExpiresAt(data.accessCodeExpiresAt); setView('dashboard'); loadServices(data.token, data.codeHash); loadVpnNodes(data.token, data.codeHash); loadContacts(data.token, data.codeHash); toast({ title: 'Path Established', description: 'Secure tunnel active. Welcome, Ghost.' }); }
       else { setError(data.message || 'Access denied'); setView('login'); }
     } catch (err) { setError('Connection failed. Check your network.'); setView('login'); }
   };
 
   const handleSwitch = async () => {
     setView('loading');
-    try { const res = await fetch(`${API_BASE}/portal/confirm-switch`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: switchCode }) }); const data = await res.json(); if (data.token) { setSessionToken(data.token); setCodeHash(data.codeHash); setExpiresAt(data.accessCodeExpiresAt); setView('dashboard'); loadServices(data.token, data.codeHash); loadVpnNodes(data.token, data.codeHash); toast({ title: 'Device Switched' }); } } catch (err) { setView('login'); }
+    try { const res = await fetch(`${API_BASE}/portal/confirm-switch`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: switchCode }) }); const data = await res.json(); if (data.token) { setSessionToken(data.token); setCodeHash(data.codeHash); setExpiresAt(data.accessCodeExpiresAt); setView('dashboard'); loadServices(data.token, data.codeHash); loadVpnNodes(data.token, data.codeHash); loadContacts(data.token, data.codeHash); toast({ title: 'Device Switched' }); } } catch (err) { setView('login'); }
+  };
+
+  const loadContacts = async (t, h) => {
+    if (!t || t === 'demo-token') {
+      setPortalContacts([
+        { id: 'd1', phoneNumber: '+44 7700 900123', displayName: 'Sarah M' },
+        { id: 'd2', phoneNumber: '+1 555 234 5678', displayName: 'Alex W' },
+        { id: 'd3', phoneNumber: '+49 170 1234567', displayName: 'Max B' },
+        { id: 'd4', phoneNumber: '+33 6 12 34 56 78', displayName: 'Claire D' },
+      ]);
+      return;
+    }
+    try {
+      const res = await fetch(`${API_BASE}/portal/contacts`, { headers: { 'Content-Type': 'application/json', 'x-session-token': t, 'x-code-hash': h } });
+      const data = await res.json();
+      if (data.contacts) setPortalContacts(data.contacts);
+    } catch (err) {}
   };
 
   const loadServices = async (t, h) => { if (!t || t === 'demo-token') return; try { const res = await fetch(`${API_BASE}/portal/services`, { headers: hdrs(t, h) }); if (res.status === 401) { handleLogout(); toast({ title: 'Session Ended', description: 'Your session was ended by a login on another device.', variant: 'destructive' }); return; } const data = await res.json(); if (data.services) setServices(data.services); if (data.wallet) setWallet(data.wallet); } catch (err) {} };
@@ -245,11 +264,11 @@ const PortalPage = () => {
   const vnumService = services.find((s) => s.type === 'VIRTUAL_NUMBER');
 
   if (activeTab === 'messages' && vnumService && vnumService.numberDetails) return (
-    <div className="fixed inset-0 z-50 bg-[#050b14] flex flex-col pt-16"><Helmet><title>PhantomPath | Messages</title></Helmet><div className="flex-1 flex flex-col min-h-0"><MessagingPanel sessionToken={sessionToken} codeHash={codeHash} virtualNumber={vnumService.numberDetails.phoneNumber} virtualNumberId={vnumService.id} onClose={() => setActiveTab('dashboard')} /></div></div>
+    <div className="fixed inset-0 z-50 bg-[#050b14] flex flex-col pt-16"><Helmet><title>PhantomPath | Messages</title></Helmet><div className="flex-1 flex flex-col min-h-0"><MessagingPanel sessionToken={sessionToken} codeHash={codeHash} virtualNumber={vnumService.numberDetails.phoneNumber} virtualNumberId={vnumService.id} onClose={() => setActiveTab('dashboard')} prefillNumber={prefillNumber} onPrefillUsed={() => setPrefillNumber('')} contacts={portalContacts} /></div></div>
   );
 
   if (activeTab === 'calls' && vnumService && vnumService.numberDetails) return (
-    <div className="fixed inset-0 z-50 bg-[#050b14] flex flex-col pt-16"><Helmet><title>PhantomPath | Calls</title></Helmet><div className="flex-1 flex flex-col min-h-0"><CallPanel sessionToken={sessionToken} codeHash={codeHash} virtualNumber={vnumService.numberDetails.phoneNumber} virtualNumberId={vnumService.id} onClose={() => setActiveTab('dashboard')} /></div></div>
+    <div className="fixed inset-0 z-50 bg-[#050b14] flex flex-col pt-16"><Helmet><title>PhantomPath | Calls</title></Helmet><div className="flex-1 flex flex-col min-h-0"><CallPanel sessionToken={sessionToken} codeHash={codeHash} virtualNumber={vnumService.numberDetails.phoneNumber} virtualNumberId={vnumService.id} onClose={() => setActiveTab('dashboard')} prefillNumber={prefillNumber} onPrefillUsed={() => setPrefillNumber('')} contacts={portalContacts} /></div></div>
   );
 
   if (activeTab === 'rooms') return (
@@ -257,7 +276,7 @@ const PortalPage = () => {
   );
 
   if (activeTab === 'contacts') return (
-    <div className="fixed inset-0 z-50 bg-[#050b14] flex flex-col pt-16"><Helmet><title>PhantomPath | Contacts</title></Helmet><div className="flex-1 flex flex-col min-h-0"><ContactsPanel sessionToken={sessionToken} codeHash={codeHash} onClose={() => setActiveTab('dashboard')} onMessage={(num) => { setActiveTab('messages'); }} onCall={(num) => { setActiveTab('calls'); }} /></div></div>
+    <div className="fixed inset-0 z-50 bg-[#050b14] flex flex-col pt-16"><Helmet><title>PhantomPath | Contacts</title></Helmet><div className="flex-1 flex flex-col min-h-0"><ContactsPanel sessionToken={sessionToken} codeHash={codeHash} onClose={() => setActiveTab('dashboard')} onMessage={(num) => { setPrefillNumber(num); setActiveTab('messages'); }} onCall={(num) => { setPrefillNumber(num); setActiveTab('calls'); }} /></div></div>
   );
 
   return (
