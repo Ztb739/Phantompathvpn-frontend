@@ -241,7 +241,7 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
   const getInitials = (num) => { const clean = num.replace(/[^0-9+]/g, ''); return clean.slice(-2); };
   const getAvatarColor = (num) => { const colors = ['bg-[#00a884]', 'bg-[#6B5CE7]', 'bg-[#D4614C]', 'bg-[#E8A838]', 'bg-[#5B96E7]', 'bg-[#D45BA8]']; let hash = 0; for (let i = 0; i < num.length; i++) hash = num.charCodeAt(i) + ((hash << 5) - hash); return colors[Math.abs(hash) % colors.length]; };
 
-  const filtered = searchQuery ? conversations.filter((c) => c.contactNumber.includes(searchQuery) || (getContactName(c.contactNumber) && getContactName(c.contactNumber).toLowerCase().includes(searchQuery.toLowerCase())) || (c.lastMessage && c.lastMessage.toLowerCase().includes(searchQuery.toLowerCase()))) : conversations;
+  const filtered = searchQuery ? conversations.filter((c) => { const cleanSearch = searchQuery.replace(/[\s+\-]/g, ''); const cleanNum = c.contactNumber.replace(/[\s+\-]/g, ''); return cleanNum.includes(cleanSearch) || (getContactName(c.contactNumber) && getContactName(c.contactNumber).toLowerCase().includes(searchQuery.toLowerCase())) || (c.lastMessage && c.lastMessage.toLowerCase().includes(searchQuery.toLowerCase())); }) : conversations;
 
   /* ═══ SIDEBAR - Conversation List ═══ */
   const Sidebar = () => (
