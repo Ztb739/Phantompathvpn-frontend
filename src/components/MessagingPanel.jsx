@@ -30,11 +30,17 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
   const inputRef = useRef(null);
   const pollRef = useRef(null);
 
-  // Prefill from contacts
+  // Prefill from contacts - open existing conversation or start new
   useEffect(() => {
     if (prefillNumber) {
-      setNewRecipient(prefillNumber);
-      setShowNewChat(true);
+      const cleanNum = prefillNumber.replace(/[\s-]/g, '');
+      const existing = conversations.find(conv => conv.contactNumber.replace(/[\s-]/g, '') === cleanNum);
+      if (existing) {
+        openThread(existing.contactNumber);
+      } else {
+        setNewRecipient(prefillNumber);
+        setShowNewChat(true);
+      }
       if (onPrefillUsed) onPrefillUsed();
     }
   }, [prefillNumber]);
@@ -292,7 +298,7 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
           </div>
         ) : filtered.map((c) => (
           <button key={c.contactNumber} onClick={() => openThread(c.contactNumber)}
-            className={cn("w-full flex items-center gap-3 px-3 py-3 hover:bg-[#202c33] transition-colors text-left border-b border-[#222d35]/50", activeContact === getContactName(c.contactNumber) || c.contactNumber && "bg-[#2a3942]")}>
+            className={cn("w-full flex items-center gap-3 px-3 py-3 hover:bg-[#202c33] transition-colors text-left border-b border-[#222d35]/50", activeContact === c.contactNumber && "bg-[#2a3942]")}>
             <div className={cn("w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 text-white font-medium text-sm", getAvatarColor(getContactName(c.contactNumber) || c.contactNumber))}>
               {getInitials(getContactName(c.contactNumber) || c.contactNumber)}
             </div>

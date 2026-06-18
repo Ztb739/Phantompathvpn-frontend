@@ -265,11 +265,11 @@ const CallPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId, onC
             <div className="flex items-center justify-center h-32 text-center"><p className="text-[#8696a0] text-sm">No call history</p></div>
           ) : callHistory.map((c) => (
             <button key={c.id} onClick={() => callFromHistory(c.contactNumber)} className="w-full flex items-center gap-3 px-4 py-3 hover:bg-[#202c33] transition-colors text-left border-b border-[#222d35]/50">
-              <div className={cn("w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-medium flex-shrink-0", getAvatarColor(c.contactNumber))}>
-                {getInitials(c.contactNumber)}
+              <div className={cn("w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-medium flex-shrink-0", getAvatarColor(getContactName(c.contactNumber) || c.contactNumber))}>
+                {getInitials(getContactName(c.contactNumber) || c.contactNumber)}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[#e9edef] text-[14px] truncate">{c.contactNumber}</p>
+                <p className="text-[#e9edef] text-[14px] truncate">{getContactName(c.contactNumber) || c.contactNumber}</p>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <CallIcon direction={c.direction} status={c.status} />
                   <span className="text-[#8696a0] text-[12px]">{fmtTime(c.createdAt)}</span>
