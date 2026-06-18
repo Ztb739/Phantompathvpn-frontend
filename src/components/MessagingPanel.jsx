@@ -32,18 +32,19 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
 
   // Prefill from contacts - open existing conversation or start new
   useEffect(() => {
-    if (prefillNumber) {
+    if (prefillNumber && !isLoading) {
       const cleanNum = prefillNumber.replace(/[\s-]/g, '');
       const existing = conversations.find(conv => conv.contactNumber.replace(/[\s-]/g, '') === cleanNum);
       if (existing) {
         openThread(existing.contactNumber);
+        setMobileView('thread');
       } else {
         setNewRecipient(prefillNumber);
         setShowNewChat(true);
       }
       if (onPrefillUsed) onPrefillUsed();
     }
-  }, [prefillNumber]);
+  }, [prefillNumber, isLoading]);
 
   const { connected, on, emit } = useSocket(accessCodeId);
 
