@@ -57,6 +57,7 @@ const PortalPage = () => {
         ]);
         setWallet({ balance: 5.00, currency: 'GBP' });
         setVpnNodes([{ id: 'demo-au', name: 'australia-sydney-1', country: 'Australia', countryCode: 'AU', city: 'Sydney', status: 'ONLINE', load: 12 }]);
+        loadContacts(sessionToken, codeHash);
       } else {
         loadServices(sessionToken, codeHash); loadContacts(sessionToken, codeHash);
         loadVpnNodes(sessionToken, codeHash);
