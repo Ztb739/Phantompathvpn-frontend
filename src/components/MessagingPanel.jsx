@@ -199,8 +199,19 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
 
   const startNew = () => {
     if (!newRecipient.trim()) return;
-    openThread(newRecipient.trim());
-    setShowNewChat(false); setNewRecipient('');
+    let number = newRecipient.trim();
+    // Resolve contact name to phone number
+    if (contacts && contacts.length > 0) {
+      const match = contacts.find(c => c.displayName.toLowerCase() === number.toLowerCase() || c.phoneNumber === number);
+      if (match) { number = match.phoneNumber; }
+      else if (!/^[0-9+\s]+$/.test(number)) {
+        // Typed a name that doesn't exactly match — show dropdown instead
+        const partial = contacts.filter(c => c.displayName.toLowerCase().includes(number.toLowerCase()));
+        if (partial.length > 0) { setContactMatches(partial); return; }
+      }
+    }
+    openThread(number);
+    setShowNewChat(false); setNewRecipient(''); setContactMatches([]);
   };
 
   const sendMsg = async () => {
