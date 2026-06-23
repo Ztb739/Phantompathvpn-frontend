@@ -187,7 +187,7 @@ const CallPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId, onC
         <div className={cn("w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center text-white text-xl sm:text-2xl font-medium mb-6 shadow-lg", getAvatarColor(activeCall.to))}>
           {getInitials(activeCall.to)}
         </div>
-        <p className="text-[#e9edef] text-lg sm:text-xl font-medium mb-1" style={mono}>{activeCall.to}</p>
+        <p className="text-[#e9edef] text-lg sm:text-xl font-medium mb-1" style={mono}>{getContactName(activeCall.to) || activeCall.to}</p>
         {activeCall.webrtc && <p className="text-[#6B5CE7] text-[10px] mb-1 flex items-center gap-1" style={mono}><Wifi className="w-3 h-3" />WebRTC</p>}
         <p className={cn("text-sm mb-8 sm:mb-10", activeCall.status === 'connected' ? "text-[#00a884]" : activeCall.status === 'incoming' ? "text-[#6B5CE7]" : "text-[#8696a0]")} style={mono}>
           {activeCall.status === 'ringing' ? 'Ringing...' : activeCall.status === 'incoming' ? 'Incoming call...' : fmtDuration(callDuration)}
@@ -243,7 +243,7 @@ const CallPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId, onC
         {/* Dial Pad */}
         <div className="px-4 py-4 bg-[#0b141a] border-b border-[#222d35]">
           <div className="bg-[#202c33] rounded-xl p-3 mb-3 flex items-center">
-            <input value={dialNumber} onChange={(e) => handleDialInput(e.target.value)} placeholder="Name or number..." className="flex-1 bg-transparent text-[#e9edef] text-lg text-center outline-none placeholder:text-[#8696a0]" style={mono} />
+            <input value={dialNumber} onChange={(e) => handleDialInput(e.target.value)} placeholder="Name or number..." autoComplete="off" className="flex-1 bg-transparent text-[#e9edef] text-lg text-center outline-none placeholder:text-[#8696a0]" style={mono} />
             {contactMatches.length > 0 && (<div className="absolute top-12 left-0 right-0 bg-[#202c33] border border-[#222d35] rounded-lg shadow-xl z-50 max-h-40 overflow-y-auto">{contactMatches.map((m) => (<button key={m.id} onClick={() => selectContact(m)} className="w-full px-3 py-2 text-left hover:bg-[#2a3942] flex items-center gap-2"><span className="text-[#e9edef] text-sm">{m.displayName}</span><span className="text-[#8696a0] text-xs">{m.phoneNumber}</span></button>))}</div>)}{dialNumber && <button onClick={dialPadDelete} className="w-8 h-8 rounded-full hover:bg-[#374a55] flex items-center justify-center"><Delete className="w-4 h-4 text-[#aebac1]" /></button>}
           </div>
           <div className="grid grid-cols-3 gap-2 mb-3">
