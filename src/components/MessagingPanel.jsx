@@ -291,7 +291,7 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
       {/* New Chat Input */}
       <AnimatePresence>
         {showNewChat && (
-          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-visible">
             <div className="px-3 py-2 bg-[#182229] border-b border-[#222d35] flex gap-2">
               <div className="flex-1 relative"><input value={newRecipient} onChange={(e) => handleRecipientChange(e.target.value)} placeholder="Name or number..." className="w-full h-9 bg-[#202c33] text-[#e9edef] text-sm placeholder:text-[#8696a0] rounded-lg px-3 border-none outline-none" onKeyDown={(e) => e.key === 'Enter' && startNew()} />{contactMatches.length > 0 && (<div className="absolute top-10 left-0 right-0 bg-[#202c33] border border-[#222d35] rounded-lg shadow-xl z-50 max-h-40 overflow-y-auto">{contactMatches.map((m) => (<button key={m.id} onClick={() => selectContact(m)} className="w-full px-3 py-2 text-left hover:bg-[#2a3942] flex items-center gap-2"><span className="text-[#e9edef] text-sm">{m.displayName}</span><span className="text-[#8696a0] text-xs">{m.phoneNumber}</span></button>))}</div>)}</div>
               <button onClick={startNew} className="h-9 px-4 bg-[#00a884] text-[#111b21] text-xs font-bold rounded-lg hover:bg-[#06cf9c] transition-colors">Chat</button>
