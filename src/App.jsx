@@ -37,7 +37,6 @@ import AICatalogue from '@/pages/AICatalogue.jsx';
 import ADRPage from '@/pages/ADRPage.jsx';
 import CookiePolicyPage from '@/pages/CookiePolicyPage.jsx';
 import PortalPage from '@/pages/PortalPage.jsx';
-import AdminGodMode from '@/pages/AdminGodMode';
 import SuccessPage from '@/pages/SuccessPage.jsx';
 
 const LandingPage = () => (
@@ -132,7 +131,6 @@ function App() {
             <Route path="/" element={<Navigate to="/portal" replace />} />
             <Route path="/pricing" element={<PricingPage />} />
             <Route path="/portal" element={<PortalPage />} />
-            <Route path="/pp-ctrl-admin" element={<AdminGodMode />} />
             <Route path="/success" element={<SuccessPage />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms" element={<TermsConditions />} />
