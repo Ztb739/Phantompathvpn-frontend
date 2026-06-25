@@ -66,6 +66,7 @@ const PortalPage = () => {
           { id: 'demo-au', name: 'australia-sydney-1', country: 'Australia', countryCode: 'AU', city: 'Sydney', status: 'ONLINE', load: 12 },
           { id: 'demo-in', name: 'india-mumbai-1', country: 'India', countryCode: 'IN', city: 'Mumbai', status: 'ONLINE', load: 0 },
           { id: 'demo-sg', name: 'singapore-1', country: 'Singapore', countryCode: 'SG', city: 'Singapore', status: 'ONLINE', load: 0 },
+          { id: 'demo-ca', name: 'canada-montreal-1', country: 'Canada', countryCode: 'CA', city: 'Montreal', status: 'ONLINE', load: 0 },
         ]);
         setVpnNodes(demoNodes);
         setActiveNodeId(demoNodes[0]?.id);
@@ -166,6 +167,7 @@ const PortalPage = () => {
           { id: 'demo-au', name: 'australia-sydney-1', country: 'Australia', countryCode: 'AU', city: 'Sydney', status: 'ONLINE', load: 12 },
           { id: 'demo-in', name: 'india-mumbai-1', country: 'India', countryCode: 'IN', city: 'Mumbai', status: 'ONLINE', load: 0 },
           { id: 'demo-sg', name: 'singapore-1', country: 'Singapore', countryCode: 'SG', city: 'Singapore', status: 'ONLINE', load: 0 },
+          { id: 'demo-ca', name: 'canada-montreal-1', country: 'Canada', countryCode: 'CA', city: 'Montreal', status: 'ONLINE', load: 0 },
         ]);
         setVpnNodes(demoNodes2);
         setActiveNodeId(demoNodes2[0]?.id);
