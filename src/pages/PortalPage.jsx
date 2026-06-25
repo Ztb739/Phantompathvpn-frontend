@@ -24,6 +24,7 @@ const PortalPage = () => {
   const [services, setServices] = useState([]);
   const [wallet, setWallet] = useState({ balance: 0, currency: 'GBP' });
   const [vpnNodes, setVpnNodes] = useState([]);
+  const [activeNodeId, setActiveNodeId] = useState(null);
   const [expiresAt, setExpiresAt] = useState(() => localStorage.getItem('pp_expires') || '');
   const [switchCode, setSwitchCode] = useState('');
   const [error, setError] = useState('');
@@ -58,14 +59,16 @@ const PortalPage = () => {
           { id: 'demo-vnum', type: 'VIRTUAL_NUMBER', status: 'ACTIVE', expiresAt: d.toISOString(), numberDetails: { phoneNumber: '+44 115 661 2336', smsEnabled: true, voiceEnabled: true, status: 'ACTIVE' } },
         ]);
         setWallet({ balance: 5.00, currency: 'GBP' });
-        setVpnNodes(sortNodes([
-          { id: 'demo-uk1', name: 'uk-portsmouth-1', country: 'United Kingdom', countryCode: 'GB', city: 'Portsmouth', status: 'ONLINE', load: 0 },
+        const demoNodes = sortNodes([
+          { id: 'demo-uk1', name: 'uk-portsmouth-1', isActive: true, country: 'United Kingdom', countryCode: 'GB', city: 'Portsmouth', status: 'ONLINE', load: 0 },
           { id: 'demo-us1', name: 'usa-seattle-1', country: 'United States', countryCode: 'US', city: 'Seattle', status: 'ONLINE', load: 0 },
           { id: 'demo-nl', name: 'netherlands-amsterdam-1', country: 'Netherlands', countryCode: 'NL', city: 'Amsterdam', status: 'ONLINE', load: 0 },
           { id: 'demo-au', name: 'australia-sydney-1', country: 'Australia', countryCode: 'AU', city: 'Sydney', status: 'ONLINE', load: 12 },
           { id: 'demo-in', name: 'india-mumbai-1', country: 'India', countryCode: 'IN', city: 'Mumbai', status: 'ONLINE', load: 0 },
           { id: 'demo-sg', name: 'singapore-1', country: 'Singapore', countryCode: 'SG', city: 'Singapore', status: 'ONLINE', load: 0 },
-        ]));
+        ]);
+        setVpnNodes(demoNodes);
+        setActiveNodeId(demoNodes[0]?.id);
         loadContacts(sessionToken, codeHash);
       } else {
         loadServices(sessionToken, codeHash); loadContacts(sessionToken, codeHash);
@@ -156,14 +159,16 @@ const PortalPage = () => {
         { id: 'demo-vnum', type: 'VIRTUAL_NUMBER', status: 'ACTIVE', expiresAt: d.toISOString(), numberDetails: { phoneNumber: '+44 115 661 2336', smsEnabled: true, voiceEnabled: true, status: 'ACTIVE' } },
       ]);
       setWallet({ balance: 5.00, currency: 'GBP' });
-      setVpnNodes(sortNodes([
-          { id: 'demo-uk1', name: 'uk-portsmouth-1', country: 'United Kingdom', countryCode: 'GB', city: 'Portsmouth', status: 'ONLINE', load: 0 },
+      const demoNodes2 = sortNodes([
+          { id: 'demo-uk1', name: 'uk-portsmouth-1', isActive: true, country: 'United Kingdom', countryCode: 'GB', city: 'Portsmouth', status: 'ONLINE', load: 0 },
           { id: 'demo-us1', name: 'usa-seattle-1', country: 'United States', countryCode: 'US', city: 'Seattle', status: 'ONLINE', load: 0 },
           { id: 'demo-nl', name: 'netherlands-amsterdam-1', country: 'Netherlands', countryCode: 'NL', city: 'Amsterdam', status: 'ONLINE', load: 0 },
           { id: 'demo-au', name: 'australia-sydney-1', country: 'Australia', countryCode: 'AU', city: 'Sydney', status: 'ONLINE', load: 12 },
           { id: 'demo-in', name: 'india-mumbai-1', country: 'India', countryCode: 'IN', city: 'Mumbai', status: 'ONLINE', load: 0 },
           { id: 'demo-sg', name: 'singapore-1', country: 'Singapore', countryCode: 'SG', city: 'Singapore', status: 'ONLINE', load: 0 },
-        ]));
+        ]);
+        setVpnNodes(demoNodes2);
+        setActiveNodeId(demoNodes2[0]?.id);
       setView('dashboard'); toast({ title: 'Path Established', description: 'Secure tunnel active. Welcome, Ghost.' }); return;
     }
     try {
@@ -201,7 +206,7 @@ const PortalPage = () => {
 
   const loadServices = async (t, h) => { if (!t || t === 'demo-token') return; try { const res = await fetch(`${API_BASE}/portal/services`, { headers: hdrs(t, h) }); if (res.status === 401) { handleLogout(); toast({ title: 'Session Ended', description: 'Your session was ended by a login on another device.', variant: 'destructive' }); return; } const data = await res.json(); if (data.services) setServices(data.services); if (data.wallet) setWallet(data.wallet); } catch (err) {} };
   const loadVpnNodes = async (t, h) => { try { const res = await fetch(`${API_BASE}/portal/vpn-nodes`, { headers: hdrs(t, h) }); const data = await res.json(); if (data.nodes) setVpnNodes(sortNodes(data.nodes)); } catch (err) {} };
-  const switchVpnNode = async (sid, nid, country) => { toast({ title: 'Switching...', description: `Connecting to ${country}...` }); try { const res = await fetch(`${API_BASE}/portal/vpn-switch`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...hdrs() }, body: JSON.stringify({ serviceId: sid, targetNodeId: nid }) }); const data = await res.json(); if (data.success) { toast({ title: 'Server Switched' }); loadServices(sessionToken, codeHash); } } catch (err) {} };
+  const switchVpnNode = async (sid, nid, country) => { toast({ title: 'Switching...', description: `Connecting to ${country}...` }); try { const res = await fetch(`${API_BASE}/portal/vpn-switch`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...hdrs() }, body: JSON.stringify({ serviceId: sid, targetNodeId: nid }) }); const data = await res.json(); if (data.success) { setActiveNodeId(nid); toast({ title: 'Server Switched', description: `Connected to ${country}` }); loadServices(sessionToken, codeHash); } } catch (err) {} };
   const downloadVpnConfig = async (sid) => { try { const res = await fetch(`${API_BASE}/portal/vpn-config/${sid}`, { headers: hdrs() }); if (!res.ok) throw new Error(); const blob = await res.blob(); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'phantompath.conf'; a.click(); URL.revokeObjectURL(a.href); toast({ title: 'Config Downloaded' }); } catch (err) { toast({ title: 'Not Available', variant: 'destructive' }); } };
   const handleLogout = () => { localStorage.removeItem('pp_token'); localStorage.removeItem('pp_hash'); localStorage.removeItem('pp_expires'); setSessionToken(''); setCodeHash(''); setServices([]); setWallet({ balance: 0, currency: 'GBP' }); setVpnNodes([]); setAccessCode(''); setError(''); setActiveTab('dashboard'); setView('login'); };
 
@@ -368,7 +373,7 @@ const PortalPage = () => {
                   <div className="space-y-3">
                     <button onClick={() => downloadVpnConfig(vpnService.id)} className="w-full h-10 bg-[#3affc2]/10 border border-[#3affc2]/15 text-[#3affc2] hover:bg-[#3affc2]/20 text-xs rounded-xl flex items-center justify-center gap-2 transition-all" style={mono}><Download className="w-4 h-4" />Download Config (.conf)</button>
                     <button onClick={() => setShowVpnGuide(true)} className="w-full h-9 bg-[#050b14] border border-[#FFE600]/20 text-[#FFE600] hover:bg-[#FFE600]/10 hover:border-[#FFE600]/40 text-[10px] rounded-xl flex items-center justify-center gap-1.5 transition-all active:scale-95" style={mono}><Shield className="w-3 h-3" />Setup Guide</button>
-                    {vpnNodes.length > 0 && (<div><p className="text-white/60 text-[10px] mb-2 uppercase tracking-widest" style={mono}>Switch Server</p><div className="grid grid-cols-2 gap-2">{vpnNodes.map((n) => (<button key={n.id} onClick={() => switchVpnNode(vpnService.id, n.id, n.country)} className="bg-[#050b14] border border-white/5 rounded-xl py-2.5 px-3 hover:border-[#3affc2]/30 hover:bg-[#3affc2]/5 transition-all flex items-center gap-2.5"><span className="text-xl">{FLAGS[n.countryCode] || '🌍'}</span><div className="text-left"><span className="text-white text-xs font-medium block">{n.country}</span><span className="text-white/50 text-[10px]">{n.city}</span></div></button>))}</div></div>)}
+                    {vpnNodes.length > 0 && (<div><p className="text-white/60 text-[10px] mb-2 uppercase tracking-widest" style={mono}>Switch Server</p><div className="grid grid-cols-2 gap-2">{vpnNodes.map((n) => (<button key={n.id} onClick={() => switchVpnNode(vpnService.id, n.id, n.country)} className={`bg-[#050b14] border rounded-xl py-2.5 px-3 transition-all flex items-center gap-2.5 ${activeNodeId === n.id ? 'border-[#3affc2]/50 bg-[#3affc2]/10 ring-1 ring-[#3affc2]/20' : 'border-white/5 hover:border-[#3affc2]/30 hover:bg-[#3affc2]/5'}`}><span className="text-xl">{FLAGS[n.countryCode] || '🌍'}</span><div className="text-left"><span className="text-white text-xs font-medium block">{n.country}</span><span className="text-white/50 text-[10px]">{activeNodeId === n.id ? '● Connected' : n.city}</span></div></button>))}</div></div>)}
                   </div>
                 ) : (<div className="bg-[#050b14] border border-dashed border-white/10 rounded-xl p-5 text-center"><p className="text-white/50 text-xs" style={mono}>Provisioning...</p></div>)}
               </motion.div>
