@@ -13,6 +13,8 @@ import { EsimSetupGuide, VpnSetupGuide } from '@/components/SetupGuide';
 
 const API_BASE = 'https://api.phantompathvpn.com/api';
 const FLAGS = { AU: '🇦🇺', GB: '🇬🇧', US: '🇺🇸', DE: '🇩🇪', CA: '🇨🇦', JP: '🇯🇵', NL: '🇳🇱', SG: '🇸🇬', FR: '🇫🇷', AE: '🇦🇪', IN: '🇮🇳', IE: '🇮🇪' };
+const NODE_ORDER = { GB: 1, US: 2, NL: 3 };
+const sortNodes = (nodes) => [...nodes].sort((a, b) => (NODE_ORDER[a.countryCode] || 99) - (NODE_ORDER[b.countryCode] || 99));
 
 const PortalPage = () => {
   const [accessCode, setAccessCode] = useState('');
@@ -56,7 +58,14 @@ const PortalPage = () => {
           { id: 'demo-vnum', type: 'VIRTUAL_NUMBER', status: 'ACTIVE', expiresAt: d.toISOString(), numberDetails: { phoneNumber: '+44 115 661 2336', smsEnabled: true, voiceEnabled: true, status: 'ACTIVE' } },
         ]);
         setWallet({ balance: 5.00, currency: 'GBP' });
-        setVpnNodes([{ id: 'demo-au', name: 'australia-sydney-1', country: 'Australia', countryCode: 'AU', city: 'Sydney', status: 'ONLINE', load: 12 }]);
+        setVpnNodes(sortNodes([
+          { id: 'demo-uk1', name: 'uk-portsmouth-1', country: 'United Kingdom', countryCode: 'GB', city: 'Portsmouth', status: 'ONLINE', load: 0 },
+          { id: 'demo-us1', name: 'usa-seattle-1', country: 'United States', countryCode: 'US', city: 'Seattle', status: 'ONLINE', load: 0 },
+          { id: 'demo-nl', name: 'netherlands-amsterdam-1', country: 'Netherlands', countryCode: 'NL', city: 'Amsterdam', status: 'ONLINE', load: 0 },
+          { id: 'demo-au', name: 'australia-sydney-1', country: 'Australia', countryCode: 'AU', city: 'Sydney', status: 'ONLINE', load: 12 },
+          { id: 'demo-in', name: 'india-mumbai-1', country: 'India', countryCode: 'IN', city: 'Mumbai', status: 'ONLINE', load: 0 },
+          { id: 'demo-sg', name: 'singapore-1', country: 'Singapore', countryCode: 'SG', city: 'Singapore', status: 'ONLINE', load: 0 },
+        ]));
         loadContacts(sessionToken, codeHash);
       } else {
         loadServices(sessionToken, codeHash); loadContacts(sessionToken, codeHash);
@@ -147,7 +156,14 @@ const PortalPage = () => {
         { id: 'demo-vnum', type: 'VIRTUAL_NUMBER', status: 'ACTIVE', expiresAt: d.toISOString(), numberDetails: { phoneNumber: '+44 115 661 2336', smsEnabled: true, voiceEnabled: true, status: 'ACTIVE' } },
       ]);
       setWallet({ balance: 5.00, currency: 'GBP' });
-      setVpnNodes([{ id: 'demo-au', name: 'australia-sydney-1', country: 'Australia', countryCode: 'AU', city: 'Sydney', status: 'ONLINE', load: 12 }]);
+      setVpnNodes(sortNodes([
+          { id: 'demo-uk1', name: 'uk-portsmouth-1', country: 'United Kingdom', countryCode: 'GB', city: 'Portsmouth', status: 'ONLINE', load: 0 },
+          { id: 'demo-us1', name: 'usa-seattle-1', country: 'United States', countryCode: 'US', city: 'Seattle', status: 'ONLINE', load: 0 },
+          { id: 'demo-nl', name: 'netherlands-amsterdam-1', country: 'Netherlands', countryCode: 'NL', city: 'Amsterdam', status: 'ONLINE', load: 0 },
+          { id: 'demo-au', name: 'australia-sydney-1', country: 'Australia', countryCode: 'AU', city: 'Sydney', status: 'ONLINE', load: 12 },
+          { id: 'demo-in', name: 'india-mumbai-1', country: 'India', countryCode: 'IN', city: 'Mumbai', status: 'ONLINE', load: 0 },
+          { id: 'demo-sg', name: 'singapore-1', country: 'Singapore', countryCode: 'SG', city: 'Singapore', status: 'ONLINE', load: 0 },
+        ]));
       setView('dashboard'); toast({ title: 'Path Established', description: 'Secure tunnel active. Welcome, Ghost.' }); return;
     }
     try {
@@ -184,7 +200,7 @@ const PortalPage = () => {
   };
 
   const loadServices = async (t, h) => { if (!t || t === 'demo-token') return; try { const res = await fetch(`${API_BASE}/portal/services`, { headers: hdrs(t, h) }); if (res.status === 401) { handleLogout(); toast({ title: 'Session Ended', description: 'Your session was ended by a login on another device.', variant: 'destructive' }); return; } const data = await res.json(); if (data.services) setServices(data.services); if (data.wallet) setWallet(data.wallet); } catch (err) {} };
-  const loadVpnNodes = async (t, h) => { try { const res = await fetch(`${API_BASE}/portal/vpn-nodes`, { headers: hdrs(t, h) }); const data = await res.json(); if (data.nodes) setVpnNodes(data.nodes); } catch (err) {} };
+  const loadVpnNodes = async (t, h) => { try { const res = await fetch(`${API_BASE}/portal/vpn-nodes`, { headers: hdrs(t, h) }); const data = await res.json(); if (data.nodes) setVpnNodes(sortNodes(data.nodes)); } catch (err) {} };
   const switchVpnNode = async (sid, nid, country) => { toast({ title: 'Switching...', description: `Connecting to ${country}...` }); try { const res = await fetch(`${API_BASE}/portal/vpn-switch`, { method: 'POST', headers: { 'Content-Type': 'application/json', ...hdrs() }, body: JSON.stringify({ serviceId: sid, targetNodeId: nid }) }); const data = await res.json(); if (data.success) { toast({ title: 'Server Switched' }); loadServices(sessionToken, codeHash); } } catch (err) {} };
   const downloadVpnConfig = async (sid) => { try { const res = await fetch(`${API_BASE}/portal/vpn-config/${sid}`, { headers: hdrs() }); if (!res.ok) throw new Error(); const blob = await res.blob(); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'phantompath.conf'; a.click(); URL.revokeObjectURL(a.href); toast({ title: 'Config Downloaded' }); } catch (err) { toast({ title: 'Not Available', variant: 'destructive' }); } };
   const handleLogout = () => { localStorage.removeItem('pp_token'); localStorage.removeItem('pp_hash'); localStorage.removeItem('pp_expires'); setSessionToken(''); setCodeHash(''); setServices([]); setWallet({ balance: 0, currency: 'GBP' }); setVpnNodes([]); setAccessCode(''); setError(''); setActiveTab('dashboard'); setView('login'); };
