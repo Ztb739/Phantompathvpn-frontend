@@ -60,7 +60,8 @@ const PortalPage = () => {
         ]);
         setWallet({ balance: 5.00, currency: 'GBP' });
         const demoNodes = sortNodes([
-          { id: 'demo-uk1', name: 'uk-portsmouth-1', isActive: true, country: 'United Kingdom', countryCode: 'GB', city: 'Portsmouth', status: 'ONLINE', load: 0 },
+          { id: 'demo-uk0', name: 'uk-baremetal-1', isActive: true, country: 'United Kingdom', countryCode: 'GB', city: 'London', status: 'ONLINE', load: 0 },
+          { id: 'demo-uk1', name: 'uk-portsmouth-1', country: 'United Kingdom', countryCode: 'GB', city: 'Portsmouth', status: 'ONLINE', load: 0 },
           { id: 'demo-us1', name: 'usa-seattle-1', country: 'United States', countryCode: 'US', city: 'Seattle', status: 'ONLINE', load: 0 },
           { id: 'demo-nl', name: 'netherlands-amsterdam-1', country: 'Netherlands', countryCode: 'NL', city: 'Amsterdam', status: 'ONLINE', load: 0 },
           { id: 'demo-au', name: 'australia-sydney-1', country: 'Australia', countryCode: 'AU', city: 'Sydney', status: 'ONLINE', load: 12 },
@@ -161,7 +162,8 @@ const PortalPage = () => {
       ]);
       setWallet({ balance: 5.00, currency: 'GBP' });
       const demoNodes2 = sortNodes([
-          { id: 'demo-uk1', name: 'uk-portsmouth-1', isActive: true, country: 'United Kingdom', countryCode: 'GB', city: 'Portsmouth', status: 'ONLINE', load: 0 },
+          { id: 'demo-uk0', name: 'uk-baremetal-1', isActive: true, country: 'United Kingdom', countryCode: 'GB', city: 'London', status: 'ONLINE', load: 0 },
+          { id: 'demo-uk1', name: 'uk-portsmouth-1', country: 'United Kingdom', countryCode: 'GB', city: 'Portsmouth', status: 'ONLINE', load: 0 },
           { id: 'demo-us1', name: 'usa-seattle-1', country: 'United States', countryCode: 'US', city: 'Seattle', status: 'ONLINE', load: 0 },
           { id: 'demo-nl', name: 'netherlands-amsterdam-1', country: 'Netherlands', countryCode: 'NL', city: 'Amsterdam', status: 'ONLINE', load: 0 },
           { id: 'demo-au', name: 'australia-sydney-1', country: 'Australia', countryCode: 'AU', city: 'Sydney', status: 'ONLINE', load: 12 },
