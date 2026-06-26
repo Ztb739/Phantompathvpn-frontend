@@ -14,6 +14,7 @@ import { EsimSetupGuide, VpnSetupGuide } from '@/components/SetupGuide';
 const API_BASE = 'https://api.phantompathvpn.com/api';
 const FLAGS = { AU: '🇦🇺', GB: '🇬🇧', US: '🇺🇸', DE: '🇩🇪', CA: '🇨🇦', JP: '🇯🇵', NL: '🇳🇱', SG: '🇸🇬', FR: '🇫🇷', AE: '🇦🇪', IN: '🇮🇳', IE: '🇮🇪' };
 const NODE_ORDER = { GB: 1, US: 2, NL: 3 };
+const SHORT_NAME = { 'United Kingdom': 'UK', 'United States': 'USA', 'Netherlands': 'NL' };
 const sortNodes = (nodes) => [...nodes].sort((a, b) => (NODE_ORDER[a.countryCode] || 99) - (NODE_ORDER[b.countryCode] || 99));
 
 const PortalPage = () => {
@@ -377,7 +378,7 @@ const PortalPage = () => {
                   <div className="space-y-3">
                     <button onClick={() => downloadVpnConfig(vpnService.id)} className="w-full h-10 bg-[#3affc2]/10 border border-[#3affc2]/15 text-[#3affc2] hover:bg-[#3affc2]/20 text-xs rounded-xl flex items-center justify-center gap-2 transition-all" style={mono}><Download className="w-4 h-4" />Download Config (.conf)</button>
                     <button onClick={() => setShowVpnGuide(true)} className="w-full h-9 bg-[#050b14] border border-[#FFE600]/20 text-[#FFE600] hover:bg-[#FFE600]/10 hover:border-[#FFE600]/40 text-[10px] rounded-xl flex items-center justify-center gap-1.5 transition-all active:scale-95" style={mono}><Shield className="w-3 h-3" />Setup Guide</button>
-                    {vpnNodes.length > 0 && (<div><p className="text-white/60 text-[10px] mb-2 uppercase tracking-widest" style={mono}>Switch Server</p><div className="grid grid-cols-2 gap-2">{vpnNodes.map((n) => (<button key={n.id} onClick={() => switchVpnNode(vpnService.id, n.id, n.country)} className={`bg-[#050b14] border rounded-xl py-2.5 px-3 transition-all flex items-center gap-2.5 ${activeNodeId === n.id ? 'border-[#3affc2]/50 bg-[#3affc2]/10 ring-1 ring-[#3affc2]/20' : 'border-white/5 hover:border-[#3affc2]/30 hover:bg-[#3affc2]/5'}`}><span className="text-xl">{FLAGS[n.countryCode] || '🌍'}</span><div className="text-left"><span className="text-white text-xs font-medium block">{n.country}</span><span className="text-white/50 text-[10px]">{activeNodeId === n.id ? '● Connected' : n.city}</span></div></button>))}</div></div>)}
+                    {vpnNodes.length > 0 && (<div><p className="text-white/60 text-[10px] mb-2 uppercase tracking-widest" style={mono}>Switch Server</p><div className="grid grid-cols-2 gap-2">{vpnNodes.map((n) => (<button key={n.id} onClick={() => switchVpnNode(vpnService.id, n.id, n.country)} className={`bg-[#050b14] border rounded-xl py-2.5 px-3 transition-all flex items-center gap-2.5 ${activeNodeId === n.id ? 'border-[#3affc2]/50 bg-[#3affc2]/10 ring-1 ring-[#3affc2]/20' : 'border-white/5 hover:border-[#3affc2]/30 hover:bg-[#3affc2]/5'}`}><span className="text-xl">{FLAGS[n.countryCode] || '🌍'}</span><div className="text-left"><span className="text-white text-xs font-medium block">{SHORT_NAME[n.country] || n.country}</span><span className="text-white/50 text-[10px]">{activeNodeId === n.id ? '● Connected' : n.city}</span></div></button>))}</div></div>)}
                   </div>
                 ) : (<div className="bg-[#050b14] border border-dashed border-white/10 rounded-xl p-5 text-center"><p className="text-white/50 text-xs" style={mono}>Provisioning...</p></div>)}
               </motion.div>
