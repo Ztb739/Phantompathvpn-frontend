@@ -36,7 +36,7 @@ const CallPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId, onC
   const getContactName = (number) => {
     if (!contacts || !number) return null;
     const clean = number.replace(/[\s-]/g, '');
-    const contact = contacts.find(c => c.phoneNumber.replace(/[\s-]/g, '') === clean);
+    const contact = contacts.find(ct => ct.phoneNumber.replace(/[\s-]/g, '') === clean);
     return contact ? contact.displayName : null;
   };
 

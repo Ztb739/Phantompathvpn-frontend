@@ -51,16 +51,16 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
   const getContactName = (number) => {
     if (!contacts || !number) return null;
     const clean = number.replace(/[\s-]/g, '');
-    const contact = contacts.find(c => c.phoneNumber.replace(/[\s-]/g, '') === clean);
+    const contact = contacts.find(ct => ct.phoneNumber.replace(/[\s-]/g, '') === clean);
     return contact ? contact.displayName : null;
   };
 
   const handleRecipientChange = (val) => {
     setNewRecipient(val);
     if (val.length > 0 && contacts.length > 0) {
-      const matches = contacts.filter(c => 
-        c.displayName.toLowerCase().includes(val.toLowerCase()) || 
-        c.phoneNumber.includes(val)
+      const matches = contacts.filter(ct => 
+        ct.displayName.toLowerCase().includes(val.toLowerCase()) || 
+        ct.phoneNumber.includes(val)
       );
       setContactMatches(matches);
     } else {
@@ -202,11 +202,11 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
     let number = newRecipient.trim();
     // Resolve contact name to phone number
     if (contacts && contacts.length > 0) {
-      const match = contacts.find(c => c.displayName.toLowerCase() === number.toLowerCase() || c.phoneNumber === number);
+      const match = contacts.find(ct => ct.displayName.toLowerCase() === number.toLowerCase() || c.phoneNumber === number);
       if (match) { number = match.phoneNumber; }
       else if (!/^[0-9+\s]+$/.test(number)) {
         // Typed a name that doesn't exactly match — show dropdown instead
-        const partial = contacts.filter(c => c.displayName.toLowerCase().includes(number.toLowerCase()));
+        const partial = contacts.filter(ct => ct.displayName.toLowerCase().includes(number.toLowerCase()));
         if (partial.length > 0) { setContactMatches(partial); return; }
       }
     }
