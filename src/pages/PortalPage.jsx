@@ -174,6 +174,7 @@ const PortalPage = () => {
         ]);
         setVpnNodes(demoNodes2);
         setActiveNodeId(demoNodes2[0]?.id);
+      loadContacts('demo-token', 'demo-hash');
       setView('dashboard'); toast({ title: 'Path Established', description: 'Secure tunnel active. Welcome, Ghost.' }); return;
     }
     try {
