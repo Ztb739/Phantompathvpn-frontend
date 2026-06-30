@@ -255,7 +255,7 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
   const filtered = searchQuery ? conversations.filter((c) => { const cleanSearch = searchQuery.replace(/[\s+\-]/g, ''); const cleanNum = c.contactNumber.replace(/[\s+\-]/g, ''); return cleanNum.includes(cleanSearch) || (getContactName(c.contactNumber) && getContactName(c.contactNumber).toLowerCase().includes(searchQuery.toLowerCase())) || (c.lastMessage && c.lastMessage.toLowerCase().includes(searchQuery.toLowerCase())); }) : conversations;
 
   /* ═══ SIDEBAR - Conversation List ═══ */
-  const Sidebar = () => (
+  const Sidebar = (_sq) => (
     <div className={cn("flex flex-col bg-[#111b21] border-r border-[#222d35] h-full", activeContact ? "hidden md:flex md:w-[340px] lg:w-[400px] flex-shrink-0" : "w-full md:w-[340px] lg:w-[400px] flex-shrink-0")}>
       {/* Sidebar Header */}
       <div className="flex items-center justify-between px-4 py-3 bg-[#202c33]">
@@ -301,7 +301,7 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
       </AnimatePresence>
 
       {/* Conversation List */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto" key={"search-" + searchQuery}>
         {isLoading ? (
           <div className="flex items-center justify-center h-40"><Loader2 className="w-6 h-6 text-[#00a884] animate-spin" /></div>
         ) : filtered.length === 0 ? (
@@ -474,7 +474,7 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
 
   return (
     <div className="flex h-full bg-[#111b21] overflow-hidden rounded-none md:rounded-lg">
-      {Sidebar()}
+      {Sidebar(searchQuery)}
       {ThreadView()}
     </div>
   );
