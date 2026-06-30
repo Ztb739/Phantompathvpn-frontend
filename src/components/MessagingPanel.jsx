@@ -202,7 +202,7 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
     let number = newRecipient.trim();
     // Resolve contact name to phone number
     if (contacts && contacts.length > 0) {
-      const match = contacts.find(ct => ct.displayName.toLowerCase() === number.toLowerCase() || c.phoneNumber === number);
+      const match = contacts.find(ct => ct.displayName.toLowerCase() === number.toLowerCase() || ct.phoneNumber === number);
       if (match) { number = match.phoneNumber; }
       else if (!/^[0-9+\s]+$/.test(number)) {
         // Typed a name that doesn't exactly match — show dropdown instead
