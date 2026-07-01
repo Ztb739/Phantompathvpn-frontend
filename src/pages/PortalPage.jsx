@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Lock, ArrowRight, Smartphone, Tv, Gamepad2, Laptop, Shield, Phone, LogOut, RefreshCw, AlertTriangle, Download, Zap, MessageCircle, Globe, Tablet, Clock, Mail, PhoneCall, Users, Loader2 } from 'lucide-react';
+import { Lock, ArrowRight, Smartphone, Tv, Gamepad2, Laptop, Shield, Phone, LogOut, RefreshCw, AlertTriangle, Download, Zap, MessageCircle, Globe, Tablet, Clock, Mail, PhoneCall, Users, Loader2 , X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import MessagingPanel from '@/components/MessagingPanel';
 import CallPanel from '@/components/CallPanel';
