@@ -38,6 +38,7 @@ const PortalPage = () => {
   const [recoveryResult, setRecoveryResult] = useState('');
   const [showEsimGuide, setShowEsimGuide] = useState(false);
   const [showVpnGuide, setShowVpnGuide] = useState(false);
+  const [paymentModal, setPaymentModal] = useState(null);
   const [servicesLoading, setServicesLoading] = useState(false);
   const [servicesError, setServicesError] = useState('');
   const { toast } = useToast();
@@ -147,7 +148,36 @@ const PortalPage = () => {
     setBurnStep(0);
   };
 
-  const comingSoon = () => toast({ title: 'Private Beta', description: 'Payments are disabled during the private beta. Coming soon.' });
+  const openCheckout = async (gateway, productSku, amount) => {
+    if (isDemo) { toast({ title: 'Demo Mode', description: 'Payments disabled in demo.', variant: 'destructive' }); return; }
+    try {
+      if (gateway === 'stripe') {
+        const res = await fetch(API_BASE + '/checkout/create-session', {
+          method: 'POST', headers: { 'Content-Type': 'application/json', ...hdrs() },
+          body: JSON.stringify({ productSku, successUrl: window.location.origin + '/success?source=stripe&product=' + encodeURIComponent(productSku), cancelUrl: window.location.href }),
+        });
+        const data = await res.json();
+        if (data.url) window.location.href = data.url;
+      } else if (gateway === 'paypal') {
+        const res = await fetch(API_BASE + '/checkout/paypal', {
+          method: 'POST', headers: { 'Content-Type': 'application/json', ...hdrs() },
+          body: JSON.stringify({ productSku }),
+        });
+        const data = await res.json();
+        if (data.approvalUrl) window.location.href = data.approvalUrl;
+      } else if (gateway === 'dmb') {
+        const dmbRoutes = { 150: '/dmb-payment_20', 300: '/dmb-payment_100', 450: '/dmb-payment_200' };
+        const route = dmbRoutes[amount] || '/dmb-payment_100';
+        window.location.href = 'https://pay.phantompathvpn.com' + route;
+      }
+    } catch (err) { toast({ title: 'Checkout Error', description: 'Please try again.', variant: 'destructive' }); }
+  };
+
+  const showPayment = (title, options) => {
+    setPaymentModal({ title, options });
+  };
+
+  const isDemo = sessionToken === 'demo-token';
 
   const handleConnect = async (e) => {
     e.preventDefault();
@@ -334,9 +364,9 @@ const PortalPage = () => {
                 <div className="text-center"><p className="text-white/60 text-[8px] uppercase tracking-widest mb-1.5" style={mono}>Minutes</p><p className="text-purple-400 text-2xl font-bold" style={mono}>{minutesRemaining}</p><p className="text-white/50 text-[9px]" style={mono}>remaining</p></div>
               </div>
               <div className="grid grid-cols-3 gap-2">
-                <button onClick={comingSoon} className="h-9 bg-[#FFE600]/10 border border-[#FFE600]/30 text-[#FFE600] hover:bg-[#FFE600]/20 hover:border-[#FFE600]/50 hover:shadow-[0_0_20px_rgba(255,230,0,0.2)] active:scale-95 text-[10px] rounded-xl flex items-center justify-center gap-1 transition-all" style={mono}><Mail className="w-3 h-3" />Add Msgs</button>
-                <button onClick={comingSoon} className="h-9 bg-[#FFE600]/10 border border-[#FFE600]/30 text-[#FFE600] hover:bg-[#FFE600]/20 hover:border-[#FFE600]/50 hover:shadow-[0_0_20px_rgba(255,230,0,0.2)] active:scale-95 text-[10px] rounded-xl flex items-center justify-center gap-1 transition-all" style={mono}><PhoneCall className="w-3 h-3" />Add Mins</button>
-                <button onClick={comingSoon} className="h-9 bg-[#3affc2]/15 border border-[#3affc2]/30 text-[#3affc2] hover:bg-[#3affc2]/25 hover:border-[#3affc2]/50 hover:shadow-[0_0_20px_rgba(58,255,194,0.2)] active:scale-95 text-[10px] rounded-xl flex items-center justify-center gap-1 transition-all animate-pulse" style={mono}><Zap className="w-3 h-3" />Extend</button>
+                <button onClick={() => showPayment('Add SMS Credits', [{label:'+50 SMS',price:'\u00a31.50',sku:'topup-1.50',amount:150,dmb:true},{label:'+100 SMS',price:'\u00a33.00',sku:'topup-3.00',amount:300,dmb:true}])} className="h-9 bg-[#FFE600]/10 border border-[#FFE600]/30 text-[#FFE600] hover:bg-[#FFE600]/20 hover:border-[#FFE600]/50 hover:shadow-[0_0_20px_rgba(255,230,0,0.2)] active:scale-95 text-[10px] rounded-xl flex items-center justify-center gap-1 transition-all" style={mono}><Mail className="w-3 h-3" />Add Msgs</button>
+                <button onClick={() => showPayment('Add Call Minutes', [{label:'+30 min',price:'\u00a31.50',sku:'topup-1.50',amount:150,dmb:true},{label:'+1 hour',price:'\u00a33.00',sku:'topup-3.00',amount:300,dmb:true}])} className="h-9 bg-[#FFE600]/10 border border-[#FFE600]/30 text-[#FFE600] hover:bg-[#FFE600]/20 hover:border-[#FFE600]/50 hover:shadow-[0_0_20px_rgba(255,230,0,0.2)] active:scale-95 text-[10px] rounded-xl flex items-center justify-center gap-1 transition-all" style={mono}><PhoneCall className="w-3 h-3" />Add Mins</button>
+                <button onClick={() => showPayment('Extend Pass', [{label:'30 Days',price:'\u00a39.99',sku:'vpn-30',amount:999,dmb:false},{label:'90 Days',price:'\u00a324.99',sku:'vpn-90',amount:2499,dmb:false}])} className="h-9 bg-[#3affc2]/15 border border-[#3affc2]/30 text-[#3affc2] hover:bg-[#3affc2]/25 hover:border-[#3affc2]/50 hover:shadow-[0_0_20px_rgba(58,255,194,0.2)] active:scale-95 text-[10px] rounded-xl flex items-center justify-center gap-1 transition-all animate-pulse" style={mono}><Zap className="w-3 h-3" />Extend</button>
               </div>
             </motion.div>
             {/* Virtual Number — Top Right */}
@@ -416,6 +446,34 @@ const PortalPage = () => {
           <p className="text-gray-800 text-[9px] tracking-widest" style={mono}>ENCRYPTED · WIREGUARD · EPHEMERAL</p>
         </motion.div>
       </div>
+      {/* Payment Modal */}
+      {paymentModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setPaymentModal(null)}>
+          <div className="bg-[#0a1120] border border-[#3affc2]/20 rounded-2xl w-full max-w-sm shadow-[0_0_40px_rgba(58,255,194,0.1)] max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-4 border-b border-white/5">
+              <h3 className="text-white font-semibold text-sm" style={mono}>{paymentModal.title}</h3>
+              <button onClick={() => setPaymentModal(null)} className="w-8 h-8 rounded-full hover:bg-white/5 flex items-center justify-center"><X className="w-4 h-4 text-gray-400" /></button>
+            </div>
+            <div className="p-4 space-y-3">
+              {paymentModal.options.map((opt, i) => (
+                <div key={i} className="bg-[#050b14] border border-white/10 rounded-xl p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-white text-sm font-bold" style={mono}>{opt.label}</span>
+                    <span className="text-[#3affc2] text-lg font-bold" style={mono}>{opt.price}</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button onClick={() => { setPaymentModal(null); openCheckout('stripe', opt.sku, opt.amount); }} className="h-9 bg-[#6B5CE7]/20 border border-[#6B5CE7]/40 text-[#6B5CE7] text-[10px] font-bold rounded-lg hover:bg-[#6B5CE7]/30 transition-all" style={mono}>Stripe</button>
+                    <button onClick={() => { setPaymentModal(null); openCheckout('paypal', opt.sku, opt.amount); }} className="h-9 bg-[#FFE600]/10 border border-[#FFE600]/30 text-[#FFE600] text-[10px] font-bold rounded-lg hover:bg-[#FFE600]/20 transition-all" style={mono}>PayPal</button>
+                    {opt.dmb && (
+                      <button onClick={() => { setPaymentModal(null); openCheckout('dmb', opt.sku, opt.amount); }} className="col-span-2 h-9 bg-blue-500/10 border border-blue-500/30 text-blue-400 text-[10px] font-bold rounded-lg hover:bg-blue-500/20 transition-all" style={mono}>Pay via Phone Bill (UK Only)</button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
       <EsimSetupGuide isOpen={showEsimGuide} onClose={() => setShowEsimGuide(false)} />
       <VpnSetupGuide isOpen={showVpnGuide} onClose={() => setShowVpnGuide(false)} />
     </div>
