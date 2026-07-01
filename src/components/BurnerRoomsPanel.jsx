@@ -272,7 +272,7 @@ const BurnerRoomsPanel = ({ sessionToken, codeHash, onClose }) => {
             <div className="flex-1 relative">
               <input ref={inputRef} value={newMessage} onChange={(e) => setNewMessage(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); } }} placeholder="Type a message" className="w-full h-10 bg-[#2a3942] text-[#e9edef] text-sm placeholder:text-[#8696a0] rounded-lg px-4 border-none outline-none focus:ring-0" maxLength={1600} />
             </div>
-            <button onClick={sendMsg} disabled={sending || !newMessage.trim()} className={cn("w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 transition-all", newMessage.trim() ? "bg-[#6B5CE7] hover:bg-[#5a4bd6] active:scale-95" : "bg-[#2a3942]")}>
+            <button onMouseDown={(e) => e.preventDefault()} onClick={() => { sendMsg(); setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 50); }} disabled={sending || !newMessage.trim()} className={cn("w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 transition-all", newMessage.trim() ? "bg-[#6B5CE7] hover:bg-[#5a4bd6] active:scale-95" : "bg-[#2a3942]")}>
               {sending ? <Loader2 className="w-4.5 h-4.5 text-white animate-spin" /> : <Send className="w-4.5 h-4.5 text-white" />}
             </button>
           </div>
