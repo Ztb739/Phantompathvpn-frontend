@@ -51,7 +51,7 @@ const BurnerRoomsPanel = ({ sessionToken, codeHash, onClose }) => {
     return () => clearInterval(pollRef.current);
   }, []);
 
-  useEffect(() => { if (messagesEndRef.current) messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, [messages]);
+  useEffect(() => { if (messagesEndRef.current) { const container = messagesEndRef.current.parentElement; if (container) container.scrollTop = container.scrollHeight; } }, [messages]);
   useEffect(() => { if (activeRoom && inputRef.current) inputRef.current.focus({ preventScroll: true }); }, [activeRoom]);
 
   const fetchRooms = async () => {

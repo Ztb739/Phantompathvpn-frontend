@@ -135,7 +135,7 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
     return () => clearInterval(pollRef.current);
   }, []);
 
-  useEffect(() => { if (messagesEndRef.current) messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, [messages]);
+  useEffect(() => { if (messagesEndRef.current) { const container = messagesEndRef.current.parentElement; if (container) container.scrollTop = container.scrollHeight; } }, [messages]);
   useEffect(() => { if (activeContact && inputRef.current) inputRef.current.focus({ preventScroll: true }); }, [activeContact]);
 
   // WebSocket: real-time message, delivery status, typing
@@ -218,7 +218,7 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
     const body = (inputRef.current?.value || newMessage || '').trim();
     if (!body || sending) return;
     setNewMessage('');
-    if (inputRef.current) inputRef.current.value = ''; setSending(true);
+    if (inputRef.current) { inputRef.current.value = ''; } setSending(true);
     const tempId = `temp-${Date.now()}`;
     setMessages((prev) => [...prev, { id: tempId, direction: 'OUTBOUND', body, status: 'QUEUED', createdAt: new Date().toISOString() }]);
 
@@ -235,6 +235,7 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
       setMessages((prev) => prev.map((m) => m.id === tempId ? { ...m, id: data.id, status: data.status || 'SENT' } : m));
     } catch (err) { setMessages((prev) => prev.map((m) => m.id === tempId ? { ...m, status: 'FAILED' } : m)); }
     setSending(false);
+    if (inputRef.current) setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 50);
   };
 
   const fmtTime = (d) => { const dt = new Date(d); const diff = Date.now() - dt.getTime(); if (diff < 60000) return 'now'; if (diff < 86400000) return dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); if (diff < 604800000) return dt.toLocaleDateString([], { weekday: 'short' }); return dt.toLocaleDateString([], { month: 'short', day: 'numeric' }); };
