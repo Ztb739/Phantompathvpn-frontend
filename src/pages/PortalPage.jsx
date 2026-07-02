@@ -161,10 +161,10 @@ const PortalPage = () => {
       } else if (gateway === 'paypal') {
         const res = await fetch(API_BASE + '/checkout/paypal', {
           method: 'POST', headers: { 'Content-Type': 'application/json', ...hdrs() },
-          body: JSON.stringify({ productSku }),
+          body: JSON.stringify({ productSku, returnUrl: window.location.origin + '/success?source=paypal&product=' + encodeURIComponent(productSku), cancelUrl: window.location.href }),
         });
         const data = await res.json();
-        if (data.approvalUrl) window.location.href = data.approvalUrl;
+        if (data.approveUrl) window.location.href = data.approveUrl;
       } else if (gateway === 'dmb') {
         const dmbRoutes = { 150: '/dmb-payment_20', 300: '/dmb-payment_100', 450: '/dmb-payment_200' };
         const route = dmbRoutes[amount] || '/dmb-payment_100';
@@ -364,9 +364,9 @@ const PortalPage = () => {
                 <div className="text-center"><p className="text-white/60 text-[8px] uppercase tracking-widest mb-1.5" style={mono}>Minutes</p><p className="text-purple-400 text-2xl font-bold" style={mono}>{minutesRemaining}</p><p className="text-white/50 text-[9px]" style={mono}>remaining</p></div>
               </div>
               <div className="grid grid-cols-3 gap-2">
-                <button onClick={() => showPayment('Add SMS Credits', [{label:'+50 SMS',price:'\u00a31.50',sku:'topup-1.50',amount:150,dmb:true},{label:'+100 SMS',price:'\u00a33.00',sku:'topup-3.00',amount:300,dmb:true}])} className="h-9 bg-[#FFE600]/10 border border-[#FFE600]/30 text-[#FFE600] hover:bg-[#FFE600]/20 hover:border-[#FFE600]/50 hover:shadow-[0_0_20px_rgba(255,230,0,0.2)] active:scale-95 text-[10px] rounded-xl flex items-center justify-center gap-1 transition-all" style={mono}><Mail className="w-3 h-3" />Add Msgs</button>
-                <button onClick={() => showPayment('Add Call Minutes', [{label:'+30 min',price:'\u00a31.50',sku:'topup-1.50',amount:150,dmb:true},{label:'+1 hour',price:'\u00a33.00',sku:'topup-3.00',amount:300,dmb:true}])} className="h-9 bg-[#FFE600]/10 border border-[#FFE600]/30 text-[#FFE600] hover:bg-[#FFE600]/20 hover:border-[#FFE600]/50 hover:shadow-[0_0_20px_rgba(255,230,0,0.2)] active:scale-95 text-[10px] rounded-xl flex items-center justify-center gap-1 transition-all" style={mono}><PhoneCall className="w-3 h-3" />Add Mins</button>
-                <button onClick={() => showPayment('Extend Pass', [{label:'30 Days',price:'\u00a39.99',sku:'vpn-30',amount:999,dmb:false},{label:'90 Days',price:'\u00a324.99',sku:'vpn-90',amount:2499,dmb:false}])} className="h-9 bg-[#3affc2]/15 border border-[#3affc2]/30 text-[#3affc2] hover:bg-[#3affc2]/25 hover:border-[#3affc2]/50 hover:shadow-[0_0_20px_rgba(58,255,194,0.2)] active:scale-95 text-[10px] rounded-xl flex items-center justify-center gap-1 transition-all animate-pulse" style={mono}><Zap className="w-3 h-3" />Extend</button>
+                <button onClick={() => showPayment('Add SMS Credits', [{label:'+50 SMS',price:'\u00a31.50',sku:'topup-1.50',amount:150,dmb:false},{label:'+100 SMS',price:'\u00a33.00',sku:'topup-3.00',amount:300,dmb:false}])} className="h-9 bg-[#FFE600]/10 border border-[#FFE600]/30 text-[#FFE600] hover:bg-[#FFE600]/20 hover:border-[#FFE600]/50 hover:shadow-[0_0_20px_rgba(255,230,0,0.2)] active:scale-95 text-[10px] rounded-xl flex items-center justify-center gap-1 transition-all" style={mono}><Mail className="w-3 h-3" />Add Msgs</button>
+                <button onClick={() => showPayment('Add Call Minutes', [{label:'+30 min',price:'\u00a31.50',sku:'topup-1.50',amount:150,dmb:false},{label:'+1 hour',price:'\u00a33.00',sku:'topup-3.00',amount:300,dmb:false}])} className="h-9 bg-[#FFE600]/10 border border-[#FFE600]/30 text-[#FFE600] hover:bg-[#FFE600]/20 hover:border-[#FFE600]/50 hover:shadow-[0_0_20px_rgba(255,230,0,0.2)] active:scale-95 text-[10px] rounded-xl flex items-center justify-center gap-1 transition-all" style={mono}><PhoneCall className="w-3 h-3" />Add Mins</button>
+                <button onClick={() => showPayment('Extend Pass', [{label:'14 Days',price:'\u00a32.00',sku:'vpn-14',amount:200,dmb:true},{label:'30 Days',price:'\u00a33.50',sku:'vpn-30',amount:350,dmb:true}])} className="h-9 bg-[#3affc2]/15 border border-[#3affc2]/30 text-[#3affc2] hover:bg-[#3affc2]/25 hover:border-[#3affc2]/50 hover:shadow-[0_0_20px_rgba(58,255,194,0.2)] active:scale-95 text-[10px] rounded-xl flex items-center justify-center gap-1 transition-all animate-pulse" style={mono}><Zap className="w-3 h-3" />Extend</button>
               </div>
             </motion.div>
             {/* Virtual Number — Top Right */}
