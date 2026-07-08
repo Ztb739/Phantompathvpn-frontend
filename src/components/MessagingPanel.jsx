@@ -23,7 +23,7 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
   const [mobileView, setMobileView] = useState('list');
   const [walletBalance, setWalletBalance] = useState(5.00);
   const [showTopUp, setShowTopUp] = useState(false);
-  const [keyboardOffset, setKeyboardOffset] = useState(0);
+  
   const [typingContacts, setTypingContacts] = useState({});
   const [contactMatches, setContactMatches] = useState([]);
   const messagesEndRef = useRef(null);
@@ -435,7 +435,7 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
           )}
 
           {/* Input - keyboard-safe with Visual Viewport API */}
-          <div className="flex items-center gap-2 px-3 py-2.5 bg-[#202c33]" style={{ paddingBottom: keyboardOffset > 0 ? `${keyboardOffset + 10}px` : undefined, transition: 'padding-bottom 0.1s ease' }}>
+          <div className="flex items-center gap-2 px-3 py-2.5 bg-[#202c33]" >
             <button className="w-9 h-9 rounded-full hover:bg-[#2a3942] flex items-center justify-center flex-shrink-0" style={{display:"none"}}>
               
             </button>
