@@ -243,7 +243,7 @@ const CallPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId, onC
         {/* Dial Pad */}
         <div className="px-4 py-4 bg-[#0b141a] border-b border-[#222d35]">
           <div className="bg-[#202c33] rounded-xl p-3 mb-3 flex items-center">
-            <input value={dialNumber} onChange={(e) => handleDialInput(e.target.value)} placeholder="Name or number..." autoComplete="off" className="flex-1 bg-transparent text-[#e9edef] text-lg text-center outline-none placeholder:text-[#8696a0]" style={mono} />
+            <input value={dialNumber} onChange={(e) => handleDialInput(e.target.value)} placeholder="Name or number..." autoComplete="new-password" data-form-type="other" data-lpignore="true" className="flex-1 bg-transparent text-[#e9edef] text-lg text-center outline-none placeholder:text-[#8696a0]" style={mono} />
             {contactMatches.length > 0 && (<div className="absolute top-12 left-0 right-0 bg-[#202c33] border border-[#222d35] rounded-lg shadow-xl z-50 max-h-40 overflow-y-auto">{contactMatches.map((m) => (<button key={m.id} onClick={() => selectContact(m)} className="w-full px-3 py-2 text-left hover:bg-[#2a3942] flex items-center gap-2"><span className="text-[#e9edef] text-sm">{m.displayName}</span><span className="text-[#8696a0] text-xs">{m.phoneNumber}</span></button>))}</div>)}{dialNumber && <button onClick={dialPadDelete} className="w-8 h-8 rounded-full hover:bg-[#374a55] flex items-center justify-center"><Delete className="w-4 h-4 text-[#aebac1]" /></button>}
           </div>
           <div className="grid grid-cols-3 gap-2 mb-3">

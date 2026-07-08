@@ -93,7 +93,7 @@ const ContactsPanel = ({ sessionToken, codeHash, onClose, onSelectContact, onCal
       <div className="px-3 py-2 bg-[#111b21]">
         <div className="bg-[#202c33] rounded-lg flex items-center px-3 gap-2">
           <Search className="w-4 h-4 text-[#8696a0]" />
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search contacts..." autoComplete="off" className="flex-1 h-9 bg-transparent text-[#e9edef] text-sm placeholder:text-[#8696a0] outline-none" style={mono} />
+          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search contacts..." autoComplete="new-password" data-form-type="other" data-lpignore="true" className="flex-1 h-9 bg-transparent text-[#e9edef] text-sm placeholder:text-[#8696a0] outline-none" style={mono} />
         </div>
       </div>
 
