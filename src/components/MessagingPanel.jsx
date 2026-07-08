@@ -211,7 +211,9 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
 
     if (isDemo) {
       setTimeout(() => { setMessages((prev) => prev.map((m) => m.id === tempId ? { ...m, status: 'SENT' } : m)); setTimeout(() => { setMessages((prev) => prev.map((m) => m.id === tempId ? { ...m, status: 'DELIVERED' } : m)); }, 800); }, 400);
-      setSending(false); return;
+      setSending(false);
+      if (inputRef.current) setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 50);
+      return;
     }
 
     try {
