@@ -169,20 +169,7 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
 
   // Typing indicator handled server-side
 
-  // Keyboard-safe chat - Visual Viewport API
-  useEffect(() => {
-    if (!window.visualViewport) return;
-    const handleResize = () => {
-      const offset = window.innerHeight - window.visualViewport.height;
-      setKeyboardOffset(offset > 50 ? offset : 0);
-    };
-    window.visualViewport.addEventListener('resize', handleResize);
-    window.visualViewport.addEventListener('scroll', handleResize);
-    return () => {
-      window.visualViewport.removeEventListener('resize', handleResize);
-      window.visualViewport.removeEventListener('scroll', handleResize);
-    };
-  }, []);
+  // Keyboard handling removed - let browser handle natively
 
   const fetchConversations = async () => {
     if (isDemo) { setConversations(DEMO_CONVERSATIONS); setIsLoading(false); return; }
