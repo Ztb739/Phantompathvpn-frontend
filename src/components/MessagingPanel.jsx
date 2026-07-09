@@ -136,7 +136,7 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
   }, []);
 
   useEffect(() => { if (messagesEndRef.current) { const container = messagesEndRef.current.parentElement; if (container) container.scrollTop = container.scrollHeight; } }, [messages]);
-  useEffect(() => { if (activeContact && inputRef.current) inputRef.current.focus({ preventScroll: true }); }, [activeContact]);
+  useEffect(() => { if (activeContact && inputRef.current) { setTimeout(() => { inputRef.current?.focus(); inputRef.current?.scrollIntoView({ block: 'nearest' }); }, 100); } }, [activeContact]);
 
   // WebSocket: real-time message, delivery status, typing
   useEffect(() => {
