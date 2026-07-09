@@ -274,7 +274,7 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
       <div className="px-3 py-2 bg-[#111b21]">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8696a0]" />
-          <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search or start new chat" autoComplete="new-password" data-form-type="other" data-lpignore="true" className="w-full h-9 bg-[#202c33] text-[#e9edef] text-sm placeholder:text-[#8696a0] rounded-lg pl-10 pr-4 border-none outline-none focus:ring-0" />
+          <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search or start new chat" autoComplete="one-time-code" autoCorrect="off" autoCapitalize="off" spellCheck="false" data-form-type="other" data-lpignore="true" inputMode="text" className="w-full h-9 bg-[#202c33] text-[#e9edef] text-sm placeholder:text-[#8696a0] rounded-lg pl-10 pr-4 border-none outline-none focus:ring-0" />
         </div>
       </div>
 
@@ -283,7 +283,7 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
         {showNewChat && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-visible">
             <div className="px-3 py-2 bg-[#182229] border-b border-[#222d35] flex gap-2">
-              <div className="flex-1 relative"><input value={newRecipient} onChange={(e) => handleRecipientChange(e.target.value)} placeholder="Name or number..." autoComplete="new-password" data-form-type="other" data-lpignore="true" className="w-full h-9 bg-[#202c33] text-[#e9edef] text-sm placeholder:text-[#8696a0] rounded-lg px-3 border-none outline-none" onKeyDown={(e) => e.key === 'Enter' && startNew()} />{contactMatches.length > 0 && (<div className="absolute top-10 left-0 right-0 bg-[#202c33] border border-[#222d35] rounded-lg shadow-xl z-50 max-h-40 overflow-y-auto">{contactMatches.map((m) => (<button key={m.id} onClick={() => selectContact(m)} className="w-full px-3 py-2 text-left hover:bg-[#2a3942] flex items-center gap-2"><span className="text-[#e9edef] text-sm">{m.displayName}</span><span className="text-[#8696a0] text-xs">{m.phoneNumber}</span></button>))}</div>)}</div>
+              <div className="flex-1 relative"><input value={newRecipient} onChange={(e) => handleRecipientChange(e.target.value)} placeholder="Name or number..." autoComplete="one-time-code" autoCorrect="off" autoCapitalize="off" spellCheck="false" data-form-type="other" data-lpignore="true" inputMode="text" className="w-full h-9 bg-[#202c33] text-[#e9edef] text-sm placeholder:text-[#8696a0] rounded-lg px-3 border-none outline-none" onKeyDown={(e) => e.key === 'Enter' && startNew()} />{contactMatches.length > 0 && (<div className="absolute top-10 left-0 right-0 bg-[#202c33] border border-[#222d35] rounded-lg shadow-xl z-50 max-h-40 overflow-y-auto">{contactMatches.map((m) => (<button key={m.id} onClick={() => selectContact(m)} className="w-full px-3 py-2 text-left hover:bg-[#2a3942] flex items-center gap-2"><span className="text-[#e9edef] text-sm">{m.displayName}</span><span className="text-[#8696a0] text-xs">{m.phoneNumber}</span></button>))}</div>)}</div>
               <button onClick={startNew} className="h-9 px-4 bg-[#00a884] text-[#111b21] text-xs font-bold rounded-lg hover:bg-[#06cf9c] transition-colors">Chat</button>
             </div>
           </motion.div>
@@ -433,7 +433,7 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
                 ref={inputRef}
                 defaultValue=""
                 onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); } }}
-                placeholder="Type a message" autoComplete="new-password" data-form-type="other" data-lpignore="true"
+                placeholder="Type a message" autoComplete="one-time-code" autoCorrect="off" autoCapitalize="off" spellCheck="false" data-form-type="other" data-lpignore="true" inputMode="text"
                 className="w-full h-10 bg-[#2a3942] text-[#e9edef] text-sm placeholder:text-[#8696a0] rounded-lg px-4 border-none outline-none focus:ring-0"
                 maxLength={1600}
               />
