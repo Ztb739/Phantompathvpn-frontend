@@ -7,6 +7,8 @@ import { cn } from '@/lib/utils';
 const API_BASE = 'https://api.phantompathvpn.com/api';
 const mono = { fontFamily: "'SF Mono', 'Fira Code', 'Courier New', monospace" };
 
+
+const normalizeUK = (n) => { let c = n.replace(/[\s\-()]/g, ''); if (c.startsWith('07')) c = '+44' + c.slice(1); else if (c.startsWith('7') && c.length === 10) c = '+44' + c; else if (c.startsWith('44')) c = '+' + c; if (!c.startsWith('+')) c = '+' + c; return c; };
 const CallPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId, onClose, prefillNumber, onPrefillUsed, contacts = [] }) => {
   const { toast } = useToast();
   const [callHistory, setCallHistory] = useState([]);
@@ -124,6 +126,7 @@ const CallPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId, onC
 
   const initiateCall = async (number) => {
     if (!number.trim()) return;
+    number = normalizeUK(number.trim());
 
     // Try WebRTC first if available
     if (webrtcReady && telnyxClientRef.current) {

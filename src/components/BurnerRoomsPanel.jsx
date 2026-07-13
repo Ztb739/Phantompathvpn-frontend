@@ -6,6 +6,8 @@ import { cn } from '@/lib/utils';
 
 const API_BASE = 'https://api.phantompathvpn.com/api';
 
+
+const normalizeUK = (n) => { let c = n.replace(/[\s\-()]/g, ''); if (c.startsWith('07')) c = '+44' + c.slice(1); else if (c.startsWith('7') && c.length === 10) c = '+44' + c; else if (c.startsWith('44')) c = '+' + c; if (!c.startsWith('+')) c = '+' + c; return c; };
 const BurnerRoomsPanel = ({ sessionToken, codeHash, onClose }) => {
   const { toast } = useToast();
   const [rooms, setRooms] = useState([]);
@@ -91,7 +93,8 @@ const BurnerRoomsPanel = ({ sessionToken, codeHash, onClose }) => {
     if (!inviteNumber.trim() || !activeRoom) return;
     if (isDemo) { toast({ title: 'Invited', description: `${inviteNumber} added to chat` }); setShowInvite(false); setInviteNumber(''); return; }
     try {
-      const res = await fetch(`${API_BASE}/portal/rooms/${activeRoom.id}/invite`, { method: 'POST', headers: hdrs(), body: JSON.stringify({ phoneNumber: inviteNumber.trim() }) });
+      const normalized = normalizeUK(inviteNumber.trim());
+      const res = await fetch(`${API_BASE}/portal/rooms/${activeRoom.id}/invite`, { method: 'POST', headers: hdrs(), body: JSON.stringify({ phoneNumber: normalized }) });
       if (res.ok) { toast({ title: 'Invited', description: `${inviteNumber} added to chat` }); fetchRooms(); }
       else { const data = await res.json(); toast({ title: 'Error', description: data.message, variant: 'destructive' }); }
     } catch (err) { toast({ title: 'Error', description: 'Failed to invite user', variant: 'destructive' }); }

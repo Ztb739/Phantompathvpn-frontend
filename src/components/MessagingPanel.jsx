@@ -9,6 +9,8 @@ import useSocket from '@/hooks/use-socket';
 
 const API_BASE = 'https://api.phantompathvpn.com/api';
 
+
+const normalizeUK = (n) => { let c = n.replace(/[\s\-()]/g, ''); if (c.startsWith('07')) c = '+44' + c.slice(1); else if (c.startsWith('7') && c.length === 10) c = '+44' + c; else if (c.startsWith('44')) c = '+' + c; if (!c.startsWith('+')) c = '+' + c; return c; };
 const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId, onClose, accessCodeId, prefillNumber, onPrefillUsed, contacts = [] }) => {
   const { toast } = useToast();
   const [activeContact, setActiveContact] = useState(null);
@@ -197,6 +199,7 @@ const MessagingPanel = ({ sessionToken, codeHash, virtualNumber, virtualNumberId
         if (partial.length > 0) { setContactMatches(partial); return; }
       }
     }
+    number = normalizeUK(number);
     openThread(number);
     setShowNewChat(false); setNewRecipient(''); setContactMatches([]);
   };
